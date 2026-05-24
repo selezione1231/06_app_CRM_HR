@@ -272,33 +272,33 @@ export default function App() {
   const loadSupabaseData = async () => {
     try {
       const { data: dbJobs, error: errJobs } = await supabase
-        .from('jobs')
+        .from('06app_CRM_HR_jobs')
         .select('*')
         .order('created_at', { ascending: false })
       if (errJobs) throw errJobs
       setJobs(dbJobs || [])
 
       const { data: dbCandidates, error: errCandidates } = await supabase
-        .from('candidates')
+        .from('06app_CRM_HR_candidates')
         .select('*')
       if (errCandidates) throw errCandidates
       setCandidates(dbCandidates || [])
 
       const { data: dbNotes, error: errNotes } = await supabase
-        .from('notes')
+        .from('06app_CRM_HR_notes')
         .select('*')
       if (errNotes) throw errNotes
       setNotes(dbNotes || [])
 
       const { data: dbAppts, error: errAppts } = await supabase
-        .from('appointments')
+        .from('06app_CRM_HR_appointments')
         .select('*')
         .order('date_time', { ascending: true })
       if (errAppts) throw errAppts
       setAppointments(dbAppts || [])
 
       const { data: dbTemplates, error: errTemplates } = await supabase
-        .from('job_templates')
+        .from('06app_CRM_HR_job_templates')
         .select('*')
         .order('created_at', { ascending: false })
       if (errTemplates) throw errTemplates
@@ -356,7 +356,7 @@ export default function App() {
         try {
           if (jobData.id) {
             const { error } = await supabase
-              .from('job_templates')
+              .from('06app_CRM_HR_job_templates')
               .update({
                 title: jobData.title,
                 department: jobData.department,
@@ -367,7 +367,7 @@ export default function App() {
             if (error) throw error
           } else {
             const { error } = await supabase
-              .from('job_templates')
+              .from('06app_CRM_HR_job_templates')
               .insert([{
                 title: jobData.title,
                 department: jobData.department,
@@ -405,7 +405,7 @@ export default function App() {
         try {
           if (jobData.id) {
             const { data, error } = await supabase
-              .from('jobs')
+              .from('06app_CRM_HR_jobs')
               .update({
                 title: jobData.title,
                 department: jobData.department,
@@ -424,7 +424,7 @@ export default function App() {
             }
           } else {
             const { error } = await supabase
-              .from('jobs')
+              .from('06app_CRM_HR_jobs')
               .insert([{
                 title: jobData.title,
                 department: jobData.department,
@@ -457,7 +457,7 @@ export default function App() {
     } else {
       try {
         const { error } = await supabase
-          .from('jobs')
+          .from('06app_CRM_HR_jobs')
           .delete()
           .eq('id', jobId)
         if (error) throw error
@@ -477,7 +477,7 @@ export default function App() {
     } else {
       try {
         const { error } = await supabase
-          .from('job_templates')
+          .from('06app_CRM_HR_job_templates')
           .delete()
           .eq('id', templateId)
         if (error) throw error
@@ -518,7 +518,7 @@ export default function App() {
     } else {
       try {
         const { data, error } = await supabase
-          .from('candidates')
+          .from('06app_CRM_HR_candidates')
           .insert([candidateData])
           .select()
         if (error) throw error
@@ -544,7 +544,7 @@ export default function App() {
     } else {
       try {
         const { error } = await supabase
-          .from('candidates')
+          .from('06app_CRM_HR_candidates')
           .update({ stage: newStage })
           .eq('id', candidateId)
         if (error) throw error
@@ -575,7 +575,7 @@ export default function App() {
     } else {
       try {
         const { error } = await supabase
-          .from('candidates')
+          .from('06app_CRM_HR_candidates')
           .delete()
           .eq('id', candidateId)
         if (error) throw error
@@ -598,7 +598,7 @@ export default function App() {
     } else {
       try {
         const { data, error } = await supabase
-          .from('appointments')
+          .from('06app_CRM_HR_appointments')
           .insert([apptData])
           .select()
         if (error) throw error
@@ -618,7 +618,7 @@ export default function App() {
     } else {
       try {
         const { error } = await supabase
-          .from('appointments')
+          .from('06app_CRM_HR_appointments')
           .delete()
           .eq('id', apptId)
         if (error) throw error
@@ -647,7 +647,7 @@ export default function App() {
     } else {
       try {
         const { error } = await supabase
-          .from('notes')
+          .from('06app_CRM_HR_notes')
           .insert([{
             candidate_id: candidateId,
             author_email: authorEmail,
