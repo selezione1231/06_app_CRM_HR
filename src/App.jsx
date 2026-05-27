@@ -208,6 +208,61 @@ const DEFAULT_EMPLOYEES = [
     document_id_expiry: '2028-11-12',
     safety_course_expiry: '2026-05-10',
     medical_visit_expiry: '2027-06-18'
+  },
+  {
+    id: 'demo-emp-3',
+    name: 'Alessandro Neri',
+    email: 'a.neri@todos.it',
+    phone: '+39 329 8899001',
+    department: 'HR / Recruiting',
+    role: 'HR Manager',
+    hire_date: '2023-03-10',
+    contract_type: 'Tempo Indeterminato',
+    ral: 45000,
+    trial_period_end: null,
+    assets: [
+      { type: 'Notebook', model: 'MacBook Air 15 M2', serial: 'C02HG892Q05E', assignedAt: '2023-03-10' },
+      { type: 'Badge', model: 'Accesso Ufficio A', serial: 'BDG-0021', assignedAt: '2023-03-10' }
+    ],
+    document_id_expiry: '2026-06-15',
+    safety_course_expiry: '2028-09-22',
+    medical_visit_expiry: '2026-05-20'
+  },
+  {
+    id: 'demo-emp-4',
+    name: 'Sofia Gialli',
+    email: 's.gialli@todos.it',
+    phone: '+39 340 7788990',
+    department: 'Amministrazione',
+    role: 'Responsabile Contabile',
+    hire_date: '2025-09-01',
+    contract_type: 'Tempo Determinato',
+    ral: 32000,
+    trial_period_end: '2025-11-01',
+    assets: [
+      { type: 'Notebook', model: 'HP ProBook 450', serial: 'HP-99321A', assignedAt: '2025-09-01' }
+    ],
+    document_id_expiry: '2030-02-14',
+    safety_course_expiry: '2028-10-15',
+    medical_visit_expiry: '2027-09-01'
+  },
+  {
+    id: 'demo-emp-5',
+    name: 'Valerio Verdi',
+    email: 'v.verdi@todos.it',
+    phone: '+39 335 1234567',
+    department: 'Tech',
+    role: 'Junior Full Stack Developer',
+    hire_date: '2026-05-02',
+    contract_type: 'Apprendistato',
+    ral: 26000,
+    trial_period_end: '2026-11-02',
+    assets: [
+      { type: 'Notebook', model: 'MacBook Air 13 M3', serial: 'C02G293KQ01E', assignedAt: '2026-05-02' }
+    ],
+    document_id_expiry: '2031-10-05',
+    safety_course_expiry: '2026-05-28',
+    medical_visit_expiry: '2026-06-02'
   }
 ]
 
@@ -232,6 +287,39 @@ const DEFAULT_LEAVES = [
     end_date: '2026-05-29',
     hours: 4,
     notes: 'Visita dentistica nel pomeriggio',
+    status: 'Pending'
+  },
+  {
+    id: 'demo-leave-3',
+    employee_id: 'demo-emp-3',
+    employee_name: 'Alessandro Neri',
+    type: 'Ferie',
+    start_date: '2026-05-27',
+    end_date: '2026-05-29',
+    hours: null,
+    notes: 'Ponte festività',
+    status: 'Approved'
+  },
+  {
+    id: 'demo-leave-4',
+    employee_id: 'demo-emp-4',
+    employee_name: 'Sofia Gialli',
+    type: 'Malattia',
+    start_date: '2026-05-25',
+    end_date: '2026-05-26',
+    hours: null,
+    notes: 'Stato influenzale',
+    status: 'Approved'
+  },
+  {
+    id: 'demo-leave-5',
+    employee_id: 'demo-emp-5',
+    employee_name: 'Valerio Verdi',
+    type: 'Ferie',
+    start_date: '2026-06-15',
+    end_date: '2026-06-19',
+    hours: null,
+    notes: 'Vacanza estiva anticipata',
     status: 'Pending'
   }
 ]
