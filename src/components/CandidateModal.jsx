@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { X, Mail, Phone, Calendar, User, Clipboard, Plus, ShieldAlert, BadgeCheck, MessageSquare, BookOpen, Briefcase, FileText, Video, Send, Cloud, ExternalLink } from 'lucide-react'
 
-export default function CandidateModal({ isOpen, onClose, candidate, notes, onAddNote, isDemo, onUpdateStage, onAddAppointment, job }) {
+export default function CandidateModal({ isOpen, onClose, candidate, notes, onAddNote, isDemo, onUpdateStage, onAddAppointment, job, onAddEmployee }) {
   const [activeTab, setActiveTab] = useState('profile')
   const [newNote, setNewNote] = useState('')
 
@@ -366,6 +366,54 @@ export default function CandidateModal({ isOpen, onClose, candidate, notes, onAd
             </button>
           </div>
         </div>
+
+        {/* Banner Assunzione */}
+        {candidate.stage === 'Assunto' && onAddEmployee && (
+          <div style={{
+            background: 'var(--success-light)',
+            borderBottom: '1px solid rgba(15, 159, 110, 0.2)',
+            padding: '10px 20px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            fontSize: '0.8rem',
+            color: 'var(--success)',
+            fontWeight: 600
+          }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              🎉 Il candidato è stato assunto! Desideri attivare il suo Fascicolo Digitale di Dipendente?
+            </span>
+            <button 
+              className="btn btn-primary"
+              style={{
+                background: 'var(--success)',
+                borderColor: 'var(--success)',
+                padding: '4px 10px',
+                fontSize: '0.75rem',
+                color: '#fff',
+                boxShadow: 'none'
+              }}
+              onClick={async () => {
+                const empData = {
+                  name: candidate.name,
+                  email: candidate.email || `${candidate.name.toLowerCase().replace(/\s+/g, '.')}@azienda.it`,
+                  phone: candidate.telefono || candidate.phone || '',
+                  department: job?.department || 'Tech',
+                  role: candidate.ruolo_attuale || job?.title || 'Collaboratore',
+                  contract_type: 'Tempo Indeterminato',
+                  ral: 30000,
+                  hire_date: new Date().toISOString().split('T')[0]
+                }
+                const added = await onAddEmployee(empData)
+                if (added) {
+                  alert(`Fascicolo Digitale di ${candidate.name} creato con successo! Lo trovi nella scheda Dipendenti.`);
+                }
+              }}
+            >
+              Crea Anagrafica Dipendente
+            </button>
+          </div>
+        )}
 
         {/* Tabs navigation */}
         <div style={{

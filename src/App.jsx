@@ -6,6 +6,8 @@ import KanbanBoard from './components/KanbanBoard'
 import JobModal from './components/JobModal'
 import CandidateModal from './components/CandidateModal'
 import CreateSearch from './components/CreateSearch'
+import EmployeesTab from './components/EmployeesTab'
+import AbsencesTab from './components/AbsencesTab'
 import { supabase, isSupabaseConfigured } from './supabaseClient'
 import { Calendar, Users, Briefcase, Video, Trash2, ExternalLink, ShieldAlert, FolderArchive, FileCode } from 'lucide-react'
 
@@ -169,6 +171,71 @@ const DEFAULT_TEMPLATES = [
   }
 ]
 
+const DEFAULT_EMPLOYEES = [
+  {
+    id: 'demo-emp-1',
+    name: 'Mario Rossi',
+    email: 'm.rossi@todos.it',
+    phone: '+39 333 4455667',
+    department: 'Tech',
+    role: 'Senior Frontend Developer',
+    hire_date: '2024-01-15',
+    contract_type: 'Tempo Indeterminato',
+    ral: 42000,
+    trial_period_end: '2024-07-15',
+    assets: [
+      { type: 'Notebook', model: 'MacBook Pro 16 M3', serial: 'C02F84HGQ05D', assignedAt: '2024-01-15' },
+      { type: 'Smartphone', model: 'iPhone 15 Pro', serial: 'DNPD403K0J2D', assignedAt: '2024-01-15' }
+    ],
+    document_id_expiry: '2029-05-20',
+    safety_course_expiry: '2027-02-10',
+    medical_visit_expiry: '2026-08-15'
+  },
+  {
+    id: 'demo-emp-2',
+    name: 'Laura Bianchi',
+    email: 'l.bianchi@todos.it',
+    phone: '+39 347 1122334',
+    department: 'Commerciale',
+    role: 'Account Executive',
+    hire_date: '2024-06-01',
+    contract_type: 'Tempo Indeterminato',
+    ral: 35000,
+    trial_period_end: '2024-12-01',
+    assets: [
+      { type: 'Notebook', model: 'Dell Latitude 5440', serial: 'J94KSD2', assignedAt: '2024-06-01' }
+    ],
+    document_id_expiry: '2028-11-12',
+    safety_course_expiry: '2026-05-10',
+    medical_visit_expiry: '2027-06-18'
+  }
+]
+
+const DEFAULT_LEAVES = [
+  {
+    id: 'demo-leave-1',
+    employee_id: 'demo-emp-1',
+    employee_name: 'Mario Rossi',
+    type: 'Ferie',
+    start_date: '2026-05-24',
+    end_date: '2026-05-28',
+    hours: null,
+    notes: 'Viaggio di famiglia programmato',
+    status: 'Approved'
+  },
+  {
+    id: 'demo-leave-2',
+    employee_id: 'demo-emp-2',
+    employee_name: 'Laura Bianchi',
+    type: 'Permesso',
+    start_date: '2026-05-29',
+    end_date: '2026-05-29',
+    hours: 4,
+    notes: 'Visita dentistica nel pomeriggio',
+    status: 'Pending'
+  }
+]
+
 export default function App() {
   const [user, setUser] = useState(null)
   const [isDemo, setIsDemo] = useState(true)
@@ -180,8 +247,10 @@ export default function App() {
   const [notes, setNotes] = useState([])
   const [appointments, setAppointments] = useState([])
   const [jobTemplates, setJobTemplates] = useState([])
+  const [employees, setEmployees] = useState([])
+  const [leaves, setLeaves] = useState([])
 
-  // Navigazione principale: 'active' (ricerche attive), 'archived' (archivio), 'templates' (anagrafica), 'appointments' (appuntamenti)
+  // Navigazione principale: 'active', 'archived', 'templates', 'appointments', 'employees', 'absences'
   const [navTab, setNavTab] = useState('active')
 
   // Stati navigazione/interfaccia
@@ -246,25 +315,33 @@ export default function App() {
     const localNotes = localStorage.getItem('demo-notes')
     const localAppointments = localStorage.getItem('demo-appointments')
     const localTemplates = localStorage.getItem('demo-job-templates')
+    const localEmployees = localStorage.getItem('demo-employees')
+    const localLeaves = localStorage.getItem('demo-leaves')
 
-    if (localJobs && localCandidates && localNotes && localAppointments && localTemplates) {
+    if (localJobs && localCandidates && localNotes && localAppointments && localTemplates && localEmployees && localLeaves) {
       setJobs(JSON.parse(localJobs))
       setCandidates(JSON.parse(localCandidates))
       setNotes(JSON.parse(localNotes))
       setAppointments(JSON.parse(localAppointments))
       setJobTemplates(JSON.parse(localTemplates))
+      setEmployees(JSON.parse(localEmployees))
+      setLeaves(JSON.parse(localLeaves))
     } else {
       localStorage.setItem('demo-jobs', JSON.stringify(DEFAULT_JOBS))
       localStorage.setItem('demo-candidates', JSON.stringify(DEFAULT_CANDIDATES))
       localStorage.setItem('demo-notes', JSON.stringify(DEFAULT_NOTES))
       localStorage.setItem('demo-appointments', JSON.stringify(DEFAULT_APPOINTMENTS))
       localStorage.setItem('demo-job-templates', JSON.stringify(DEFAULT_TEMPLATES))
+      localStorage.setItem('demo-employees', JSON.stringify(DEFAULT_EMPLOYEES))
+      localStorage.setItem('demo-leaves', JSON.stringify(DEFAULT_LEAVES))
 
       setJobs(DEFAULT_JOBS)
       setCandidates(DEFAULT_CANDIDATES)
       setNotes(DEFAULT_NOTES)
       setAppointments(DEFAULT_APPOINTMENTS)
       setJobTemplates(DEFAULT_TEMPLATES)
+      setEmployees(DEFAULT_EMPLOYEES)
+      setLeaves(DEFAULT_LEAVES)
     }
   }
 
@@ -303,6 +380,22 @@ export default function App() {
         .order('created_at', { ascending: false })
       if (errTemplates) throw errTemplates
       setJobTemplates(dbTemplates || [])
+
+      // Carica Dipendenti
+      const { data: dbEmployees, error: errEmployees } = await supabase
+        .from('06app_CRM_HR_employees')
+        .select('*')
+        .order('name', { ascending: true })
+      if (errEmployees) throw errEmployees
+      setEmployees(dbEmployees || [])
+
+      // Carica Ferie/Assenze
+      const { data: dbLeaves, error: errLeaves } = await supabase
+        .from('06app_CRM_HR_leaves')
+        .select('*')
+        .order('created_at', { ascending: false })
+      if (errLeaves) throw errLeaves
+      setLeaves(dbLeaves || [])
     } catch (e) {
       console.error('Errore durante il caricamento da Supabase:', e)
       alert('Errore nel sincronizzare i dati da Supabase: ' + e.message)
@@ -661,6 +754,135 @@ export default function App() {
     }
   }
 
+  // --- GESTIONE DIPENDENTI (HRIS) ---
+  const handleAddEmployee = async (empData) => {
+    const newId = empData.id || 'demo-emp-' + Math.random().toString(36).substr(2, 9)
+    const newEmp = { ...empData, id: newId, created_at: empData.created_at || new Date().toISOString() }
+
+    if (isDemo) {
+      const updatedEmployees = [newEmp, ...employees]
+      setEmployees(updatedEmployees)
+      localStorage.setItem('demo-employees', JSON.stringify(updatedEmployees))
+      return newEmp
+    } else {
+      try {
+        const { data, error } = await supabase
+          .from('06app_CRM_HR_employees')
+          .insert([empData])
+          .select()
+        if (error) throw error
+        await loadSupabaseData()
+        return data[0]
+      } catch (e) {
+        alert("Errore nell'inserimento del dipendente su Supabase: " + e.message)
+      }
+    }
+  }
+
+  const handleUpdateEmployee = async (empId, updatedData) => {
+    if (isDemo) {
+      const updatedEmployees = employees.map(e => e.id === empId ? { ...e, ...updatedData } : e)
+      setEmployees(updatedEmployees)
+      localStorage.setItem('demo-employees', JSON.stringify(updatedEmployees))
+    } else {
+      try {
+        const { error } = await supabase
+          .from('06app_CRM_HR_employees')
+          .update(updatedData)
+          .eq('id', empId)
+        if (error) throw error
+        await loadSupabaseData()
+      } catch (e) {
+        alert("Errore nell'aggiornamento del dipendente su Supabase: " + e.message)
+      }
+    }
+  }
+
+  const handleDeleteEmployee = async (empId) => {
+    if (isDemo) {
+      const updatedEmployees = employees.filter(e => e.id !== empId)
+      const updatedLeaves = leaves.filter(l => l.employee_id !== empId)
+      setEmployees(updatedEmployees)
+      setLeaves(updatedLeaves)
+      localStorage.setItem('demo-employees', JSON.stringify(updatedEmployees))
+      localStorage.setItem('demo-leaves', JSON.stringify(updatedLeaves))
+    } else {
+      try {
+        const { error } = await supabase
+          .from('06app_CRM_HR_employees')
+          .delete()
+          .eq('id', empId)
+        if (error) throw error
+        await loadSupabaseData()
+      } catch (e) {
+        alert("Errore nell'eliminazione del dipendente su Supabase: " + e.message)
+      }
+    }
+  }
+
+  // --- GESTIONE FERIE / ASSENZE (HRIS) ---
+  const handleAddLeave = async (leaveData) => {
+    const newId = leaveData.id || 'demo-leave-' + Math.random().toString(36).substr(2, 9)
+    const newLeave = { ...leaveData, id: newId, created_at: leaveData.created_at || new Date().toISOString() }
+
+    if (isDemo) {
+      const updatedLeaves = [newLeave, ...leaves]
+      setLeaves(updatedLeaves)
+      localStorage.setItem('demo-leaves', JSON.stringify(updatedLeaves))
+      return newLeave
+    } else {
+      try {
+        const { data, error } = await supabase
+          .from('06app_CRM_HR_leaves')
+          .insert([leaveData])
+          .select()
+        if (error) throw error
+        await loadSupabaseData()
+        return data[0]
+      } catch (e) {
+        alert("Errore nell'inserimento della richiesta su Supabase: " + e.message)
+      }
+    }
+  }
+
+  const handleUpdateLeaveStatus = async (leaveId, newStatus) => {
+    if (isDemo) {
+      const updatedLeaves = leaves.map(l => l.id === leaveId ? { ...l, status: newStatus } : l)
+      setLeaves(updatedLeaves)
+      localStorage.setItem('demo-leaves', JSON.stringify(updatedLeaves))
+    } else {
+      try {
+        const { error } = await supabase
+          .from('06app_CRM_HR_leaves')
+          .update({ status: newStatus })
+          .eq('id', leaveId)
+        if (error) throw error
+        await loadSupabaseData()
+      } catch (e) {
+        alert("Errore nell'aggiornamento dello stato della richiesta su Supabase: " + e.message)
+      }
+    }
+  }
+
+  const handleDeleteLeave = async (leaveId) => {
+    if (isDemo) {
+      const updatedLeaves = leaves.filter(l => l.id !== leaveId)
+      setLeaves(updatedLeaves)
+      localStorage.setItem('demo-leaves', JSON.stringify(updatedLeaves))
+    } else {
+      try {
+        const { error } = await supabase
+          .from('06app_CRM_HR_leaves')
+          .delete()
+          .eq('id', leaveId)
+        if (error) throw error
+        await loadSupabaseData()
+      } catch (e) {
+        alert("Errore nella cancellazione della richiesta su Supabase: " + e.message)
+      }
+    }
+  }
+
   // Helpers
   const formatDateTime = (dateStr) => {
     try {
@@ -731,7 +953,9 @@ export default function App() {
           { id: 'active', label: '📋 Ricerche Attive', icon: <Briefcase size={15} /> },
           { id: 'archived', label: '🗄️ Archivio Ricerche', icon: <FolderArchive size={15} /> },
           { id: 'templates', label: '📂 Anagrafica Templates', icon: <FileCode size={15} /> },
-          { id: 'appointments', label: '📅 Appuntamenti', icon: <Calendar size={15} /> }
+          { id: 'appointments', label: '📅 Appuntamenti', icon: <Calendar size={15} /> },
+          { id: 'employees', label: '👥 Dipendenti', icon: <Users size={15} /> },
+          { id: 'absences', label: '🗓️ Presenze & Ferie', icon: <Calendar size={15} /> }
         ].map(tab => (
           <button
             key={tab.id}
@@ -927,6 +1151,22 @@ export default function App() {
                 </div>
 
               </div>
+            ) : navTab === 'employees' ? (
+              <EmployeesTab
+                employees={employees}
+                candidates={candidates}
+                onAddEmployee={handleAddEmployee}
+                onUpdateEmployee={handleUpdateEmployee}
+                onDeleteEmployee={handleDeleteEmployee}
+              />
+            ) : navTab === 'absences' ? (
+              <AbsencesTab
+                employees={employees}
+                leaves={leaves}
+                onAddLeave={handleAddLeave}
+                onUpdateLeaveStatus={handleUpdateLeaveStatus}
+                onDeleteLeave={handleDeleteLeave}
+              />
             ) : (
               /* JOBS DASHBOARD VIEWS: ACTIVE, ARCHIVED OR TEMPLATES */
               <Dashboard
@@ -970,7 +1210,8 @@ export default function App() {
         isDemo={isDemo}
         onUpdateStage={handleUpdateCandidateStage}
         onAddAppointment={handleAddAppointment}
-        job={jobs.find(j => j.id === selectedCandidate?.job_id)}
+        job={jobs.find(j => j.job_id === selectedCandidate?.job_id || j.id === selectedCandidate?.job_id)}
+        onAddEmployee={handleAddEmployee}
       />
     </div>
   )
