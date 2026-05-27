@@ -560,37 +560,57 @@ export default function App() {
       if (errTemplates) throw errTemplates
       setJobTemplates(dbTemplates || [])
 
-      // Carica Dipendenti
-      const { data: dbEmployees, error: errEmployees } = await supabase
-        .from('06app_CRM_HR_employees')
-        .select('*')
-        .order('name', { ascending: true })
-      if (errEmployees) throw errEmployees
-      setEmployees(dbEmployees || [])
+      // Carica Dipendenti con gestione errore soft
+      try {
+        const { data: dbEmployees, error: errEmployees } = await supabase
+          .from('06app_CRM_HR_employees')
+          .select('*')
+          .order('name', { ascending: true })
+        if (errEmployees) throw errEmployees
+        setEmployees(dbEmployees || [])
+      } catch (empErr) {
+        console.warn("Tabella '06app_CRM_HR_employees' non trovata in Supabase. Esegui la migrazione SQL.", empErr)
+        setEmployees([])
+      }
 
-      // Carica Ferie/Assenze
-      const { data: dbLeaves, error: errLeaves } = await supabase
-        .from('06app_CRM_HR_leaves')
-        .select('*')
-        .order('created_at', { ascending: false })
-      if (errLeaves) throw errLeaves
-      setLeaves(dbLeaves || [])
+      // Carica Ferie/Assenze con gestione errore soft
+      try {
+        const { data: dbLeaves, error: errLeaves } = await supabase
+          .from('06app_CRM_HR_leaves')
+          .select('*')
+          .order('created_at', { ascending: false })
+        if (errLeaves) throw errLeaves
+        setLeaves(dbLeaves || [])
+      } catch (leaveErr) {
+        console.warn("Tabella '06app_CRM_HR_leaves' non trovata in Supabase. Esegui la migrazione SQL.", leaveErr)
+        setLeaves([])
+      }
 
-      // Carica Checklist
-      const { data: dbChecklists, error: errChecklists } = await supabase
-        .from('06app_CRM_HR_checklists')
-        .select('*')
-        .order('created_at', { ascending: true })
-      if (errChecklists) throw errChecklists
-      setChecklists(dbChecklists || [])
+      // Carica Checklist con gestione errore soft
+      try {
+        const { data: dbChecklists, error: errChecklists } = await supabase
+          .from('06app_CRM_HR_checklists')
+          .select('*')
+          .order('created_at', { ascending: true })
+        if (errChecklists) throw errChecklists
+        setChecklists(dbChecklists || [])
+      } catch (chkErr) {
+        console.warn("Tabella '06app_CRM_HR_checklists' non trovata in Supabase. Esegui la migrazione SQL.", chkErr)
+        setChecklists([])
+      }
 
-      // Carica Performance
-      const { data: dbPerformances, error: errPerformances } = await supabase
-        .from('06app_CRM_HR_performances')
-        .select('*')
-        .order('created_at', { ascending: false })
-      if (errPerformances) throw errPerformances
-      setPerformances(dbPerformances || [])
+      // Carica Performance con gestione errore soft
+      try {
+        const { data: dbPerformances, error: errPerformances } = await supabase
+          .from('06app_CRM_HR_performances')
+          .select('*')
+          .order('created_at', { ascending: false })
+        if (errPerformances) throw errPerformances
+        setPerformances(dbPerformances || [])
+      } catch (perfErr) {
+        console.warn("Tabella '06app_CRM_HR_performances' non trovata in Supabase. Esegui la migrazione SQL.", perfErr)
+        setPerformances([])
+      }
     } catch (e) {
       console.error('Errore durante il caricamento da Supabase:', e)
       alert('Errore nel sincronizzare i dati da Supabase: ' + e.message)
