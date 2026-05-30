@@ -116,3 +116,167 @@ Il tab **📅 Planner Turni** centralizza la pianificazione organizzativa oraria
 | **Alessandro Neri** | HR Manager | HR / Recruiting | **Ferie Approvate**. **Alert Rosso:** Visita medica di idoneità scaduta. Turnazione: Notte (22:00 - 06:00). |
 | **Sofia Gialli** | Responsabile Contabile | Amministrazione | Contratto a termine. **Alert Giallo:** Scadenza periodo di prova imminente. Turnazione: Turni Custom. |
 | **Valerio Verdi** | Junior Developer | Tech | Neo-assunto. **Alert Giallo Doppio:** Corso sicurezza e visita medica entrambi da rinnovare a breve. Turnazione: Pomeriggio. |
+
+---
+
+## 🗄️ 11. Script SQL delle Migrazioni (Supabase SQL Editor)
+
+Se riscontri errori di database come `invalid input syntax for type uuid` o tabelle mancanti durante il popolamento, significa che non hai configurato le tabelle Supabase con lo schema corretto.
+
+Copia il seguente script SQL ed eseguilo integralmente nel pannello **SQL Editor** del tuo database Supabase:
+
+```sql
+-- 1. TABELLA POSIZIONI (06app_CRM_HR_jobs)
+CREATE TABLE IF NOT EXISTS "06app_CRM_HR_jobs" (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  title TEXT NOT NULL,
+  department TEXT NOT NULL,
+  status TEXT DEFAULT 'Open' NOT NULL,
+  description TEXT NOT NULL,
+  requirements TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- 2. TABELLA CANDIDATI (06app_CRM_HR_candidates)
+CREATE TABLE IF NOT EXISTS "06app_CRM_HR_candidates" (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  job_id UUID REFERENCES "06app_CRM_HR_jobs"(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  email TEXT,
+  phone TEXT,
+  stage TEXT DEFAULT 'Nuovi CV' NOT NULL,
+  cv_text TEXT,
+  competenze JSONB DEFAULT '[]'::jsonb,
+  esperienze JSONB DEFAULT '[]'::jsonb,
+  istruzione JSONB DEFAULT '[]'::jsonb,
+  fit_score INTEGER DEFAULT 0,
+  match_analysis JSONB DEFAULT '{}'::jsonb,
+  stato_interazione TEXT DEFAULT 'Da contattare',
+  cv_url TEXT DEFAULT '',
+  data_colloquio_1 TIMESTAMP WITH TIME ZONE,
+  data_colloquio_2 TIMESTAMP WITH TIME ZONE,
+  data_chiamata TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- 3. TABELLA NOTE CANDIDATO (06app_CRM_HR_notes)
+CREATE TABLE IF NOT EXISTS "06app_CRM_HR_notes" (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  candidate_id UUID REFERENCES "06app_CRM_HR_candidates"(id) ON DELETE CASCADE,
+  author_email TEXT NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- 4. TABELLA APPUNTAMENTI (06app_CRM_HR_appointments)
+CREATE TABLE IF NOT EXISTS "06app_CRM_HR_appointments" (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  candidate_id UUID REFERENCES "06app_CRM_HR_candidates"(id) ON DELETE CASCADE,
+  candidate_name TEXT NOT NULL,
+  job_title TEXT NOT NULL,
+  interviewer_email TEXT NOT NULL,
+  date_time TIMESTAMP WITH TIME ZONE NOT NULL,
+  meeting_type TEXT DEFAULT 'Teams' NOT NULL,
+  meeting_link TEXT,
+  notes TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- 5. TABELLA TEMPLATE POSIZIONI (06app_CRM_HR_job_templates)
+CREATE TABLE IF NOT EXISTS "06app_CRM_HR_job_templates" (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  title TEXT NOT NULL,
+  department TEXT NOT NULL,
+  description TEXT NOT NULL,
+  requirements TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- 6. TABELLA DIPENDENTI (06app_CRM_HR_employees)
+CREATE TABLE IF NOT EXISTS "06app_CRM_HR_employees" (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  candidate_id UUID REFERENCES "06app_CRM_HR_candidates"(id) ON DELETE SET NULL,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  phone TEXT,
+  department TEXT NOT NULL,
+  role TEXT NOT NULL,
+  hire_date DATE NOT NULL DEFAULT CURRENT_DATE,
+  contract_type TEXT NOT NULL,
+  ral NUMERIC DEFAULT 0,
+  trial_period_end DATE,
+  assets JSONB DEFAULT '[]'::jsonb,
+  document_id_expiry DATE,
+  safety_course_expiry DATE,
+  medical_visit_expiry DATE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 7. TABELLA FERIE/ASSENZE (06app_CRM_HR_leaves)
+CREATE TABLE IF NOT EXISTS "06app_CRM_HR_leaves" (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  employee_id UUID REFERENCES "06app_CRM_HR_employees"(id) ON DELETE CASCADE,
+  employee_name TEXT NOT NULL,
+  type TEXT NOT NULL,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  hours NUMERIC,
+  status TEXT NOT NULL DEFAULT 'Pending',
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 8. TABELLA CHECKLISTS (06app_CRM_HR_checklists)
+CREATE TABLE IF NOT EXISTS "06app_CRM_HR_checklists" (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  employee_id UUID REFERENCES "06app_CRM_HR_employees"(id) ON DELETE CASCADE,
+  employee_name TEXT NOT NULL,
+  type TEXT NOT NULL,
+  task_name TEXT NOT NULL,
+  assigned_to TEXT NOT NULL,
+  is_completed BOOLEAN NOT NULL DEFAULT FALSE,
+  completed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 9. TABELLA PERFORMANCE (06app_CRM_HR_performances)
+CREATE TABLE IF NOT EXISTS "06app_CRM_HR_performances" (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  employee_id UUID REFERENCES "06app_CRM_HR_employees"(id) ON DELETE CASCADE,
+  employee_name TEXT NOT NULL,
+  review_period TEXT NOT NULL,
+  self_rating JSONB NOT NULL,
+  manager_rating JSONB NOT NULL,
+  overall_feedback TEXT,
+  okrs JSONB DEFAULT '[]'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 10. TABELLA NOTE SPESE (06app_CRM_HR_expenses)
+CREATE TABLE IF NOT EXISTS "06app_CRM_HR_expenses" (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  employee_id UUID REFERENCES "06app_CRM_HR_employees"(id) ON DELETE CASCADE,
+  employee_name TEXT NOT NULL,
+  expense_date DATE NOT NULL DEFAULT CURRENT_DATE,
+  merchant TEXT NOT NULL,
+  amount NUMERIC NOT NULL DEFAULT 0,
+  category TEXT NOT NULL,
+  receipt_name TEXT,
+  status TEXT NOT NULL DEFAULT 'Pending',
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 11. TABELLA TURNI (06app_CRM_HR_shifts)
+CREATE TABLE IF NOT EXISTS "06app_CRM_HR_shifts" (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  employee_id UUID REFERENCES "06app_CRM_HR_employees"(id) ON DELETE CASCADE,
+  employee_name TEXT NOT NULL,
+  shift_date DATE NOT NULL,
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  shift_type TEXT NOT NULL,
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```

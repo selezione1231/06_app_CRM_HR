@@ -2346,6 +2346,192 @@ export default function App() {
                   I lavoratori (es. Rossi, Bianchi, Neri) dispongono di un'area riservata esclusiva a cui accedono selezionando il proprio profilo. Possono monitorare in tempo reale lo stato delle checklist di onboarding, caricare note spese o scontrini con lo scanner OCR, inserire richieste di ferie/malattia all'HR e consultare la propria turnazione con l'indicazione evidenziata in tempo reale per la giornata di <strong>OGGI</strong>.
                 </p>
               </div>
+
+              {/* Sezione 9: Migrazioni SQL */}
+              <div style={{ borderTop: '2px solid var(--border-color)', paddingTop: '20px', paddingBottom: '16px' }}>
+                <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.1rem', marginBottom: '8px', color: 'var(--primary)' }}>
+                  9. 🗄️ Query SQL delle Migrazioni (Da eseguire nel SQL Editor di Supabase)
+                </h2>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.4', marginBottom: '12px' }}>
+                  Se riscontri errori durante il popolamento del database Supabase, significa che mancano le tabelle o i vincoli corretti nel tuo database cloud. <strong>Copia il seguente script SQL ed eseguilo integralmente nel pannello SQL Editor di Supabase</strong>, dopodiché riprova a cliccare sul pulsante di popolamento dei dati.
+                </p>
+                <div style={{ position: 'relative' }}>
+                  <textarea
+                    readOnly
+                    onClick={(e) => { e.target.select(); document.execCommand('copy'); alert('Script SQL copiato negli appunti! 📋'); }}
+                    style={{
+                      width: '100%',
+                      height: '250px',
+                      background: 'rgba(0,0,0,0.3)',
+                      color: '#a7f3d0',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: 'var(--radius-md)',
+                      padding: '12px',
+                      fontFamily: 'monospace',
+                      fontSize: '0.72rem',
+                      lineHeight: '1.4',
+                      resize: 'vertical',
+                      cursor: 'pointer'
+                    }}
+                    value={`-- 1. TABELLA POSIZIONI (06app_CRM_HR_jobs)
+CREATE TABLE IF NOT EXISTS "06app_CRM_HR_jobs" (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  title TEXT NOT NULL,
+  department TEXT NOT NULL,
+  status TEXT DEFAULT 'Open' NOT NULL, -- 'Open' o 'Closed'
+  description TEXT NOT NULL,
+  requirements TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- 2. TABELLA CANDIDATI (06app_CRM_HR_candidates)
+CREATE TABLE IF NOT EXISTS "06app_CRM_HR_candidates" (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  job_id UUID REFERENCES "06app_CRM_HR_jobs"(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  email TEXT,
+  phone TEXT,
+  stage TEXT DEFAULT 'Nuovi CV' NOT NULL,
+  cv_text TEXT,
+  competenze JSONB DEFAULT '[]'::jsonb,
+  esperienze JSONB DEFAULT '[]'::jsonb,
+  istruzione JSONB DEFAULT '[]'::jsonb,
+  fit_score INTEGER DEFAULT 0,
+  match_analysis JSONB DEFAULT '{}'::jsonb,
+  stato_interazione TEXT DEFAULT 'Da contattare',
+  cv_url TEXT DEFAULT '',
+  data_colloquio_1 TIMESTAMP WITH TIME ZONE,
+  data_colloquio_2 TIMESTAMP WITH TIME ZONE,
+  data_chiamata TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- 3. TABELLA NOTE CANDIDATO (06app_CRM_HR_notes)
+CREATE TABLE IF NOT EXISTS "06app_CRM_HR_notes" (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  candidate_id UUID REFERENCES "06app_CRM_HR_candidates"(id) ON DELETE CASCADE,
+  author_email TEXT NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- 4. TABELLA APPUNTAMENTI (06app_CRM_HR_appointments)
+CREATE TABLE IF NOT EXISTS "06app_CRM_HR_appointments" (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  candidate_id UUID REFERENCES "06app_CRM_HR_candidates"(id) ON DELETE CASCADE,
+  candidate_name TEXT NOT NULL,
+  job_title TEXT NOT NULL,
+  interviewer_email TEXT NOT NULL,
+  date_time TIMESTAMP WITH TIME ZONE NOT NULL,
+  meeting_type TEXT DEFAULT 'Teams' NOT NULL,
+  meeting_link TEXT,
+  notes TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- 5. TABELLA TEMPLATE POSIZIONI (06app_CRM_HR_job_templates)
+CREATE TABLE IF NOT EXISTS "06app_CRM_HR_job_templates" (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  title TEXT NOT NULL,
+  department TEXT NOT NULL,
+  description TEXT NOT NULL,
+  requirements TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- 6. TABELLA DIPENDENTI (06app_CRM_HR_employees)
+CREATE TABLE IF NOT EXISTS "06app_CRM_HR_employees" (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  candidate_id UUID REFERENCES "06app_CRM_HR_candidates"(id) ON DELETE SET NULL,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  phone TEXT,
+  department TEXT NOT NULL,
+  role TEXT NOT NULL,
+  hire_date DATE NOT NULL DEFAULT CURRENT_DATE,
+  contract_type TEXT NOT NULL,
+  ral NUMERIC DEFAULT 0,
+  trial_period_end DATE,
+  assets JSONB DEFAULT '[]'::jsonb,
+  document_id_expiry DATE,
+  safety_course_expiry DATE,
+  medical_visit_expiry DATE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 7. TABELLA FERIE/ASSENZE (06app_CRM_HR_leaves)
+CREATE TABLE IF NOT EXISTS "06app_CRM_HR_leaves" (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  employee_id UUID REFERENCES "06app_CRM_HR_employees"(id) ON DELETE CASCADE,
+  employee_name TEXT NOT NULL,
+  type TEXT NOT NULL,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  hours NUMERIC,
+  status TEXT NOT NULL DEFAULT 'Pending',
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 8. TABELLA CHECKLISTS (06app_CRM_HR_checklists)
+CREATE TABLE IF NOT EXISTS "06app_CRM_HR_checklists" (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  employee_id UUID REFERENCES "06app_CRM_HR_employees"(id) ON DELETE CASCADE,
+  employee_name TEXT NOT NULL,
+  type TEXT NOT NULL,
+  task_name TEXT NOT NULL,
+  assigned_to TEXT NOT NULL,
+  is_completed BOOLEAN NOT NULL DEFAULT FALSE,
+  completed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 9. TABELLA PERFORMANCE (06app_CRM_HR_performances)
+CREATE TABLE IF NOT EXISTS "06app_CRM_HR_performances" (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  employee_id UUID REFERENCES "06app_CRM_HR_employees"(id) ON DELETE CASCADE,
+  employee_name TEXT NOT NULL,
+  review_period TEXT NOT NULL,
+  self_rating JSONB NOT NULL,
+  manager_rating JSONB NOT NULL,
+  overall_feedback TEXT,
+  okrs JSONB DEFAULT '[]'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 10. TABELLA NOTE SPESE (06app_CRM_HR_expenses)
+CREATE TABLE IF NOT EXISTS "06app_CRM_HR_expenses" (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  employee_id UUID REFERENCES "06app_CRM_HR_employees"(id) ON DELETE CASCADE,
+  employee_name TEXT NOT NULL,
+  expense_date DATE NOT NULL DEFAULT CURRENT_DATE,
+  merchant TEXT NOT NULL,
+  amount NUMERIC NOT NULL DEFAULT 0,
+  category TEXT NOT NULL,
+  receipt_name TEXT,
+  status TEXT NOT NULL DEFAULT 'Pending',
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 11. TABELLA TURNI (06app_CRM_HR_shifts)
+CREATE TABLE IF NOT EXISTS "06app_CRM_HR_shifts" (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  employee_id UUID REFERENCES "06app_CRM_HR_employees"(id) ON DELETE CASCADE,
+  employee_name TEXT NOT NULL,
+  shift_date DATE NOT NULL,
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  shift_type TEXT NOT NULL,
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);`}
+                  />
+                  <div style={{ fontSize: '0.68rem', color: 'var(--primary-light)', marginTop: '4px', textAlign: 'right', fontWeight: 600 }}>
+                    💡 Fai clic all'interno del box per selezionare e copiare automaticamente lo script.
+                  </div>
+                </div>
+              </div>
             </div>
             
             <div className="modal-footer no-print">
