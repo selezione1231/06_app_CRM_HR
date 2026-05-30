@@ -10,8 +10,9 @@ import EmployeesTab from './components/EmployeesTab'
 import AbsencesTab from './components/AbsencesTab'
 import ExpensesTab from './components/ExpensesTab'
 import EmployeePortalTab from './components/EmployeePortalTab'
+import AnalyticsTab from './components/AnalyticsTab'
 import { supabase, isSupabaseConfigured } from './supabaseClient'
-import { Calendar, Users, Briefcase, Video, Trash2, ExternalLink, ShieldAlert, FolderArchive, FileCode, Receipt } from 'lucide-react'
+import { Calendar, Users, Briefcase, Video, Trash2, ExternalLink, ShieldAlert, FolderArchive, FileCode, Receipt, BarChart3 } from 'lucide-react'
 
 // --- SEED DATI DEMO DI FALLBACK ---
 const DEFAULT_JOBS = [
@@ -1526,7 +1527,8 @@ export default function App() {
           { id: 'appointments', label: '📅 Appuntamenti', icon: <Calendar size={15} /> },
           { id: 'employees', label: '👥 Dipendenti', icon: <Users size={15} /> },
           { id: 'absences', label: '🗓️ Presenze & Ferie', icon: <Calendar size={15} /> },
-          { id: 'expenses', label: '💼 Note Spese', icon: <Receipt size={15} /> }
+          { id: 'expenses', label: '💼 Note Spese', icon: <Receipt size={15} /> },
+          { id: 'analytics', label: '📊 HR Analytics', icon: <BarChart3 size={15} /> }
         ].map(tab => (
           <button
             key={tab.id}
@@ -1752,6 +1754,14 @@ export default function App() {
                 onSaveExpense={handleSaveExpense}
                 onUpdateExpenseStatus={handleUpdateExpenseStatus}
                 onDeleteExpense={handleDeleteExpense}
+              />
+            ) : navTab === 'analytics' ? (
+              <AnalyticsTab
+                jobs={jobs}
+                candidates={candidates}
+                employees={employees}
+                leaves={leaves}
+                expenses={expenses}
               />
             ) : (
               /* JOBS DASHBOARD VIEWS: ACTIVE, ARCHIVED OR TEMPLATES */
