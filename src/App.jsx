@@ -9,6 +9,7 @@ import CreateSearch from './components/CreateSearch'
 import EmployeesTab from './components/EmployeesTab'
 import AbsencesTab from './components/AbsencesTab'
 import ExpensesTab from './components/ExpensesTab'
+import EmployeePortalTab from './components/EmployeePortalTab'
 import { supabase, isSupabaseConfigured } from './supabaseClient'
 import { Calendar, Users, Briefcase, Video, Trash2, ExternalLink, ShieldAlert, FolderArchive, FileCode, Receipt } from 'lucide-react'
 
@@ -1469,6 +1470,33 @@ export default function App() {
 
   if (!user) {
     return <Login onLoginSuccess={handleLoginSuccess} />
+  }
+
+  if (user.role === 'employee') {
+    return (
+      <div className="app-container">
+        {/* Header / Navbar */}
+        <Header 
+          user={user} 
+          isDemo={isDemo} 
+          onLogout={handleLogout} 
+          onOpenJobModal={() => {}}
+        />
+        <EmployeePortalTab
+          user={user}
+          employees={employees}
+          checklists={checklists}
+          performances={performances}
+          leaves={leaves}
+          expenses={expenses}
+          onUpdateChecklistTask={handleUpdateChecklistTask}
+          onAddLeave={handleAddLeave}
+          onSaveExpense={handleSaveExpense}
+          onDeleteLeave={handleDeleteLeave}
+          onDeleteExpense={handleDeleteExpense}
+        />
+      </div>
+    )
   }
 
   return (

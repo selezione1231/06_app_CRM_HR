@@ -284,13 +284,77 @@ export default function Login({ onLoginSuccess, setDemoMode }) {
           }}
         >
           <Compass size={18} />
-          <span>Accedi in modalità Demo</span>
+          <span>Accedi come Admin HR (Demo)</span>
         </button>
+
+        {/* Portale Dipendenti Demo Access */}
+        <div style={{
+          marginTop: '20px',
+          borderTop: '1px solid var(--border-color)',
+          paddingTop: '20px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '10px'
+        }}>
+          <label style={{
+            display: 'block',
+            fontSize: '0.72rem',
+            fontWeight: 700,
+            color: 'var(--text-secondary)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            textAlign: 'center'
+          }}>
+            🔑 Portale Self-Service Dipendenti (Demo)
+          </label>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <select
+              id="employee-select"
+              style={{
+                flexGrow: 1,
+                padding: '10px',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--border-color)',
+                background: 'rgba(255, 255, 255, 0.02)',
+                color: 'var(--text-primary)',
+                fontSize: '0.82rem',
+                outline: 'none'
+              }}
+            >
+              <option value="demo-emp-1" style={{ background: '#1c1917' }}>Mario Rossi (Tech)</option>
+              <option value="demo-emp-2" style={{ background: '#1c1917' }}>Laura Bianchi (Sales)</option>
+              <option value="demo-emp-3" style={{ background: '#1c1917' }}>Alessandro Neri (HR)</option>
+            </select>
+            <button
+              type="button"
+              onClick={() => {
+                const select = document.getElementById('employee-select')
+                const selectedVal = select.value
+                const empNames = {
+                  'demo-emp-1': { name: 'Mario Rossi', email: 'm.rossi@todos.it' },
+                  'demo-emp-2': { name: 'Laura Bianchi', email: 'l.bianchi@todos.it' },
+                  'demo-emp-3': { name: 'Alessandro Neri', email: 'a.neri@todos.it' }
+                }
+                const emp = empNames[selectedVal]
+                onLoginSuccess({
+                  id: selectedVal,
+                  email: emp.email,
+                  role: 'employee',
+                  user_metadata: { full_name: emp.name }
+                }, true)
+              }}
+              className="btn btn-primary"
+              style={{ padding: '10px 16px', fontSize: '0.82rem' }}
+            >
+              Entra
+            </button>
+          </div>
+        </div>
 
         <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', marginBottom: '4px' }}>
             <CheckCircle size={12} style={{ color: 'var(--success)' }} />
-            <span>AI Resume Parsing con Gemini attivo</span>
+            <span>Accesso e profilazione ruoli attivi</span>
           </div>
           Tutti i dati caricati in modalità Demo restano persistiti nel browser.
         </div>
