@@ -10,7 +10,9 @@ export default function Header({
   onMarkAsRead, 
   onMarkAllAsRead, 
   onClearNotifications,
-  onOpenManual
+  onOpenManual,
+  showSeedButton = false,
+  onSeedDatabase
 }) {
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('crm-theme') || 'dark'
@@ -100,7 +102,7 @@ export default function Header({
       </div>
 
       {/* Center Database Status Indicator */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         {isDemo ? (
           <div style={{
             display: 'flex',
@@ -148,6 +150,32 @@ export default function Header({
             }} />
             <span>SUPABASE CONNESSO</span>
           </div>
+        )}
+
+        {/* Database Seeder Button (flashing premium button) */}
+        {!isDemo && showSeedButton && (
+          <button
+            onClick={onSeedDatabase}
+            style={{
+              padding: '4px 10px',
+              fontSize: '0.68rem',
+              fontWeight: 800,
+              background: 'var(--primary-light)',
+              color: 'var(--primary)',
+              border: '1.5px solid var(--primary)',
+              borderRadius: 'var(--radius-sm)',
+              cursor: 'pointer',
+              boxShadow: 'var(--shadow-sm)',
+              animation: 'pulse 1.2s infinite alternate',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              transition: 'all 0.2s'
+            }}
+            title="Popola le tabelle del Database Supabase con i dati di esempio"
+          >
+            <span>🌱 Popola Dati Demo</span>
+          </button>
         )}
       </div>
 

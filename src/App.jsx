@@ -935,6 +935,77 @@ export default function App() {
     }
   };
 
+  const handleSeedSupabaseData = async () => {
+    if (isDemo) return;
+    
+    const confirmSeed = window.confirm(
+      "Sei sicuro di voler popolare il database Supabase con i dati di esempio?\n" +
+      "Questo inserirà 5 dipendenti demo, ferie, spese, turni e checklist standard."
+    );
+    if (!confirmSeed) return;
+
+    try {
+      setLoading(true);
+      
+      // 1. Check if already seeded to avoid duplicates
+      const { data: currentEmp, error: errEmpCheck } = await supabase
+        .from('06app_CRM_HR_employees')
+        .select('id')
+        .limit(1);
+      
+      if (currentEmp && currentEmp.length > 0) {
+        alert("Il database Supabase contiene già dei dipendenti. Seeding annullato per evitare duplicati.");
+        setLoading(false);
+        return;
+      }
+      
+      // Insert default employees
+      const { error: errEmpInsert } = await supabase
+        .from('06app_CRM_HR_employees')
+        .insert(DEFAULT_EMPLOYEES);
+      
+      if (errEmpInsert) throw errEmpInsert;
+
+      // Seed Leaves
+      const { error: errLeaveInsert } = await supabase
+        .from('06app_CRM_HR_leaves')
+        .insert(DEFAULT_LEAVES);
+      
+      // Seed Checklists
+      const { error: errCheckInsert } = await supabase
+        .from('06app_CRM_HR_checklists')
+        .insert(DEFAULT_CHECKLISTS);
+
+      // Seed Performances
+      const { error: errPerfInsert } = await supabase
+        .from('06app_CRM_HR_performances')
+        .insert(DEFAULT_PERFORMANCES);
+
+      // Seed Expenses
+      const { error: errExpInsert } = await supabase
+        .from('06app_CRM_HR_expenses')
+        .insert(DEFAULT_EXPENSES);
+
+      // Seed Shifts
+      const demoShifts = generateDemoShifts(DEFAULT_EMPLOYEES);
+      const { error: errShiftInsert } = await supabase
+        .from('06app_CRM_HR_shifts')
+        .insert(demoShifts);
+
+      alert("Database Supabase popolato con successo! 🎉 Ricarico le tabelle...");
+      await loadSupabaseData();
+    } catch (err) {
+      console.error("Errore durante il seeding di Supabase:", err);
+      alert(
+        "Errore durante il popolamento del database: " + err.message + "\n\n" +
+        "Assicurati di aver eseguito lo script SQL delle migrazioni sul pannello Supabase (SQL Editor).\n" +
+        "Trovi le query da eseguire nel manuale (tasto Guida PDF in alto a destra)."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // --- AZIONI: LOGIN / LOGOUT ---
   const handleLoginSuccess = (userData, demoStatus) => {
     setUser(userData)
@@ -1809,6 +1880,8 @@ export default function App() {
         onMarkAllAsRead={handleMarkAllNotificationsAsRead}
         onClearNotifications={handleClearNotifications}
         onOpenManual={() => setShowManualModal(true)}
+        showSeedButton={employees.length === 0}
+        onSeedDatabase={handleSeedSupabaseData}
       />
 
       {/* 4 Navigation tabs: Active searches, Archived, Templates, and Appointments */}
