@@ -1,6 +1,20 @@
 import React, { useState } from 'react'
 import { Calendar, Users, Briefcase, FileText, CheckCircle, Clock, Sparkles, Send, Receipt, ShieldAlert, Award, Car } from 'lucide-react'
 
+const getSafeAssets = (assets) => {
+  if (!assets) return []
+  if (Array.isArray(assets)) return assets
+  if (typeof assets === 'string') {
+    try {
+      const parsed = JSON.parse(assets)
+      return Array.isArray(parsed) ? parsed : []
+    } catch (e) {
+      return []
+    }
+  }
+  return []
+}
+
 export default function EmployeePortalTab({
   user,
   employees = [],
@@ -308,11 +322,11 @@ export default function EmployeePortalTab({
                 <h2 style={{ fontSize: '1.1rem', fontWeight: 800, margin: '0 0 14px 0', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
                   💻 Asset & Beni Consegnati
                 </h2>
-                {(!currentEmp.assets || currentEmp.assets.length === 0) ? (
+                {(getSafeAssets(currentEmp.assets).length === 0) ? (
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Nessun dispositivo aziendale assegnato.</p>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {currentEmp.assets.map((asset, idx) => (
+                    {getSafeAssets(currentEmp.assets).map((asset, idx) => (
                       <div key={idx} style={{
                         padding: '10px 14px',
                         background: 'rgba(255,255,255,0.03)',

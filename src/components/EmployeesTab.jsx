@@ -1,5 +1,19 @@
 import React, { useState, useEffect } from 'react'
 
+const getSafeAssets = (assets) => {
+  if (!assets) return []
+  if (Array.isArray(assets)) return assets
+  if (typeof assets === 'string') {
+    try {
+      const parsed = JSON.parse(assets)
+      return Array.isArray(parsed) ? parsed : []
+    } catch (e) {
+      return []
+    }
+  }
+  return []
+}
+
 export default function EmployeesTab({ 
   employees, 
   candidates, 
@@ -151,14 +165,14 @@ export default function EmployeesTab({
       assignedAt: new Date().toISOString().split('T')[0]
     }
     
-    const updatedAssets = [...(selectedEmp.assets || []), newAsset]
+    const updatedAssets = [...getSafeAssets(selectedEmp.assets), newAsset]
     await onUpdateEmployee(selectedEmp.id, { ...selectedEmp, assets: updatedAssets })
     setNewAssetModel('')
     setNewAssetSerial('')
   }
 
   const handleRemoveAsset = async (index) => {
-    const updatedAssets = (selectedEmp.assets || []).filter((_, i) => i !== index)
+    const updatedAssets = getSafeAssets(selectedEmp.assets).filter((_, i) => i !== index)
     await onUpdateEmployee(selectedEmp.id, { ...selectedEmp, assets: updatedAssets })
   }
 
@@ -535,7 +549,7 @@ export default function EmployeesTab({
               <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', gap: '16px', overflowX: 'auto' }}>
                 {[
                   { id: 'contract', label: '📄 Dati Contrattuali', roles: ['admin', 'hr'] },
-                  { id: 'assets', label: `💻 Asset & Dotazione (${selectedEmp.assets?.length || 0})`, roles: ['admin', 'hr', 'servizi_generali', 'pm'] },
+                  { id: 'assets', label: `💻 Asset & Dotazione (${getSafeAssets(selectedEmp.assets).length})`, roles: ['admin', 'hr', 'servizi_generali', 'pm'] },
                   { id: 'deadlines', label: '🚨 Adempimenti & Scadenze', roles: ['admin', 'hr'] },
                   { id: 'checklist', label: `📋 Checklist (${checklistPercent}%)`, roles: ['admin', 'hr', 'pm'] },
                   { id: 'performance', label: '📈 Valutazioni & OKR', roles: ['admin', 'hr', 'pm'] }
@@ -601,14 +615,14 @@ export default function EmployeesTab({
                         </tr>
                       </thead>
                       <tbody>
-                        {(!selectedEmp.assets || selectedEmp.assets.length === 0) ? (
+                        {(getSafeAssets(selectedEmp.assets).length === 0) ? (
                           <tr>
                             <td colSpan="5" style={{ textAlignment: 'center', color: 'var(--text-secondary)', padding: '16px' }}>
                               Nessun bene aziendale assegnato a questo dipendente.
                             </td>
                           </tr>
                         ) : (
-                          selectedEmp.assets.map((asset, idx) => (
+                          getSafeAssets(selectedEmp.assets).map((asset, idx) => (
                             <tr key={idx}>
                               <td><strong>{asset.type}</strong></td>
                               <td>{asset.model}</td>
