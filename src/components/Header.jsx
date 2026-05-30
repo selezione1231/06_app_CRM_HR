@@ -9,7 +9,8 @@ export default function Header({
   notifications = [], 
   onMarkAsRead, 
   onMarkAllAsRead, 
-  onClearNotifications 
+  onClearNotifications,
+  onOpenManual
 }) {
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('crm-theme') || 'dark'
@@ -170,6 +171,29 @@ export default function Header({
             <span>Crea Ricerca</span>
           </button>
         )}
+
+        {/* Manual/Guide Button */}
+        <button
+          onClick={onOpenManual}
+          style={{
+            background: 'none',
+            border: '1px solid var(--border-color)',
+            color: 'var(--text-primary)',
+            height: '30px',
+            padding: '0 10px',
+            borderRadius: 'var(--radius-md)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '4px',
+            fontSize: '0.75rem',
+            fontWeight: 700
+          }}
+          title="Manuale Operativo PDF"
+        >
+          <span>📖 Guida PDF</span>
+        </button>
 
         {/* User profile capsule */}
         <div style={{

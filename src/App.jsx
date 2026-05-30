@@ -475,6 +475,7 @@ export default function App() {
       return []
     }
   })
+  const [showManualModal, setShowManualModal] = useState(false)
 
   // Navigazione principale: 'active', 'archived', 'templates', 'appointments', 'employees', 'absences'
   const [navTab, setNavTab] = useState('active')
@@ -1774,6 +1775,7 @@ export default function App() {
           onMarkAsRead={handleMarkNotificationAsRead}
           onMarkAllAsRead={handleMarkAllNotificationsAsRead}
           onClearNotifications={handleClearNotifications}
+          onOpenManual={() => setShowManualModal(true)}
         />
         <EmployeePortalTab
           user={user}
@@ -1806,6 +1808,7 @@ export default function App() {
         onMarkAsRead={handleMarkNotificationAsRead}
         onMarkAllAsRead={handleMarkAllNotificationsAsRead}
         onClearNotifications={handleClearNotifications}
+        onOpenManual={() => setShowManualModal(true)}
       />
 
       {/* 4 Navigation tabs: Active searches, Archived, Templates, and Appointments */}
@@ -2115,6 +2118,128 @@ export default function App() {
         job={jobs.find(j => j.job_id === selectedCandidate?.job_id || j.id === selectedCandidate?.job_id)}
         onAddEmployee={handleAddEmployee}
       />
+
+      {/* Modale Manuale Operativo PDF / Guida (Fase 7-8) */}
+      {showManualModal && (
+        <div className="modal-overlay no-print" style={{ zIndex: 1100 }}>
+          <div className="modal-content glass-panel" style={{ background: 'var(--bg-card)', maxWidth: '900px', width: '90%', height: '85vh', display: 'flex', flexDirection: 'column' }}>
+            <div className="modal-header" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
+              <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                📖 Manuale Operativo - Todos Select Suite
+              </h3>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <button 
+                  onClick={() => window.print()} 
+                  className="btn btn-primary"
+                  style={{ padding: '6px 12px', fontSize: '0.72rem', fontWeight: 700 }}
+                >
+                  📥 Salva / Stampa PDF
+                </button>
+                <button 
+                  style={{ background: 'transparent', border: 'none', fontSize: '1.4rem', cursor: 'pointer', color: 'var(--text-primary)' }} 
+                  onClick={() => setShowManualModal(false)}
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body with Printable Class */}
+            <div className="modal-body printable-manual" style={{ padding: '24px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={{ textAlign: 'center', borderBottom: '2px solid var(--primary)', paddingBottom: '16px', marginBottom: '10px' }}>
+                <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.8rem', color: 'var(--primary)' }}>Todos Select Suite</h1>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  GUIDA OPERATIVA COMPLETA ED ERGONOMICA (ATS & HRIS)
+                </span>
+              </div>
+
+              {/* Sezione 1: ATS */}
+              <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '16px' }}>
+                <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.1rem', marginBottom: '8px', color: 'var(--text-primary)' }}>
+                  1. 📋 Drag & Drop ATS & AI CV Parser (Fase 1)
+                </h2>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+                  Nel tab <strong>📋 Ricerche Attive</strong>, trascinando e rilasciando un curriculum in formato PDF su qualsiasi colonna della Kanban Board, l'applicazione attiva in locale l'estrattore <code>PDF.js</code> per leggere il testo del CV. Subito dopo, le API di <strong>Gemini AI</strong> elaborano l'analisi e compilano anagrafica, competenze, e fit score, fornendo anche le domande consigliate per il colloquio.
+                </p>
+              </div>
+
+              {/* Sezione 2: Colloqui */}
+              <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '16px' }}>
+                <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.1rem', marginBottom: '8px', color: 'var(--text-primary)' }}>
+                  2. 📅 Appuntamenti, Colloqui & File ICS Outlook (Fase 2)
+                </h2>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+                  Fissando un colloquio dal pannello del candidato, l'applicazione genera e scarica automaticamente un file di calendario standard <code>.ics</code>. Questo file, se aperto su Microsoft Outlook o Apple Calendar, compila in modo sicuro i dettagli dell'incontro e l'invito Teams, senza la necessità di collegare o esporre credenziali aziendali online.
+                </p>
+              </div>
+
+              {/* Sezione 3: HRIS & Scadenziario */}
+              <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '16px' }}>
+                <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.1rem', marginBottom: '8px', color: 'var(--text-primary)' }}>
+                  3. 👥 Anagrafica Personale & Alert Scadenze (Fase 2 & 7)
+                </h2>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+                  Nel tab <strong>👥 Dipendenti</strong> è possibile gestire i contratti del personale, la RAL, e i beni tecnologici assegnati (MacBook, iPhone con relativi seriali). Inoltre, un motore di calcolo controlla costantemente le date di scadenza mediche, legali e dei corsi di sicurezza obbligatori, generando notifiche luminose nell'Header (Campana Notifiche) se mancano meno di 30 giorni alla scadenza.
+                </p>
+              </div>
+
+              {/* Sezione 4: Performance */}
+              <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '16px' }}>
+                <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.1rem', marginBottom: '8px', color: 'var(--text-primary)' }}>
+                  4. 📈 Performance Reviews & Radar SVG Custom (Fase 2)
+                </h2>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+                  Per ciascun dipendente è integrata una scheda di autovalutazione e valutazione delle competenze chiave. Un grafico a ragnatela generato in <strong>SVG nativo</strong> confronta visivamente lo scostamento tra l'autovalutazione del dipendente (colore azzurro) e la valutazione del manager (colore rosso Todos). I Key Results (OKR) sono monitorati in tempo reale tramite slider orizzontali interattivi.
+                </p>
+              </div>
+
+              {/* Sezione 5: Note Spese OCR */}
+              <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '16px' }}>
+                <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.1rem', marginBottom: '8px', color: 'var(--text-primary)' }}>
+                  5. 💼 Note Spese Smart & AI OCR Scanner (Fase 3)
+                </h2>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+                  Consente l'acquisizione intelligente dei rimborsi spese. Avviando lo scanner su uno scontrino modello, compare una raffinata animazione laser verde oscillante. Dopo 2 secondi di elaborazione AI OCR, il form viene precompilato con importo, esercente e data esatti. L'amministratore HR può approvare e scaricare il report generale formattato in formato CSV per l'ufficio contabilità.
+                </p>
+              </div>
+
+              {/* Sezione 6: Organigramma */}
+              <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '16px' }}>
+                <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.1rem', marginBottom: '8px', color: 'var(--text-primary)' }}>
+                  6. 🏢 Organigramma Gerarchico Aziendale (Fase 6)
+                </h2>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+                  Un grafico gerarchico navigabile in tempo reale mostra l'albero organizzativo delle risorse umane (CEO, Tech, Commerciale). Facendo clic su un nodo dell'organigramma, la vista gerarchica si chiude da sola e la pagina effettua uno scorrimento automatico focalizzando ed evidenziando la scheda anagrafica e i dettagli di quel dipendente!
+                </p>
+              </div>
+
+              {/* Sezione 7: Planner Turni */}
+              <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '16px' }}>
+                <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.1rem', marginBottom: '8px', color: 'var(--text-primary)' }}>
+                  7. 📅 Planner Turni Settimanali & Collision Detector (Fase 8)
+                </h2>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+                  L'HR programma la turnazione settimanale (Mattina, Pomeriggio, Notte, Custom). Se un dipendente ha delle ferie registrate in un giorno in cui viene assegnato un turno, il sistema rileva la collisione evidenziando il blocco con una linea rossa brillante (Collision Detector). Allerta inoltre l'amministratore se le ore settimanali programmate superano le 40 ore di soglia.
+                </p>
+              </div>
+
+              {/* Sezione 8: Portale SSP */}
+              <div style={{ paddingBottom: '16px' }}>
+                <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.1rem', marginBottom: '8px', color: 'var(--text-primary)' }}>
+                  8. 🔑 Portale Self-Service Dipendente - SSP (Fase 4 & 8)
+                </h2>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+                  I lavoratori (es. Rossi, Bianchi, Neri) dispongono di un'area riservata esclusiva a cui accedono selezionando il proprio profilo. Possono monitorare in tempo reale lo stato delle checklist di onboarding, caricare note spese o scontrini con lo scanner OCR, inserire richieste di ferie/malattia all'HR e consultare la propria turnazione con l'indicazione evidenziata in tempo reale per la giornata di <strong>OGGI</strong>.
+                </p>
+              </div>
+            </div>
+            
+            <div className="modal-footer no-print">
+              <button className="btn btn-secondary" onClick={() => setShowManualModal(false)}>Chiudi Guida</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

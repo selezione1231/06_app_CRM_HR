@@ -524,3 +524,28 @@ input, textarea, select, button {
     transform: rotate(0deg);
   }
 }
+
+/* Printable manual styling */
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  .printable-manual, .printable-manual * {
+    visibility: visible !important;
+  }
+  .printable-manual {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
