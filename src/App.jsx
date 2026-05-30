@@ -8,8 +8,9 @@ import CandidateModal from './components/CandidateModal'
 import CreateSearch from './components/CreateSearch'
 import EmployeesTab from './components/EmployeesTab'
 import AbsencesTab from './components/AbsencesTab'
+import ExpensesTab from './components/ExpensesTab'
 import { supabase, isSupabaseConfigured } from './supabaseClient'
-import { Calendar, Users, Briefcase, Video, Trash2, ExternalLink, ShieldAlert, FolderArchive, FileCode } from 'lucide-react'
+import { Calendar, Users, Briefcase, Video, Trash2, ExternalLink, ShieldAlert, FolderArchive, FileCode, Receipt } from 'lucide-react'
 
 // --- SEED DATI DEMO DI FALLBACK ---
 const DEFAULT_JOBS = [
@@ -405,6 +406,14 @@ const DEFAULT_PERFORMANCES = [
   }
 ]
 
+const DEFAULT_EXPENSES = [
+  { id: 'exp-1', employee_id: 'demo-emp-1', employee_name: 'Mario Rossi', expense_date: '2026-05-15', merchant: 'Ristorante Da Mario', amount: 42.50, category: 'Pasti', receipt_name: 'Scontrino_Pasti_DaMario.jpg', status: 'Approved', notes: 'Cena con cliente per firma accordo aziendale' },
+  { id: 'exp-2', employee_id: 'demo-emp-2', employee_name: 'Laura Bianchi', expense_date: '2026-05-18', merchant: 'Trenitalia Frecciarossa', amount: 89.00, category: 'Trasporti', receipt_name: 'Biglietto_Treno_Roma.jpg', status: 'Approved', notes: 'Biglietto A/R per meeting commerciale a Roma' },
+  { id: 'exp-3', employee_id: 'demo-emp-3', employee_name: 'Alessandro Neri', expense_date: '2026-05-20', merchant: 'Hotel NH Milano', amount: 150.00, category: 'Alloggio', receipt_name: 'Fattura_Hotel_NH_Milano.jpg', status: 'Pending', notes: 'Soggiorno trasferta per fiera HR Innovation' },
+  { id: 'exp-4', employee_id: 'demo-emp-4', employee_name: 'Sofia Gialli', expense_date: '2026-05-22', merchant: 'Amazon.it', amount: 24.99, category: 'Attrezzatura', receipt_name: 'Ricevuta_Amazon_Mouse.jpg', status: 'Approved', notes: 'Acquisto mouse ergonomico wireless per ufficio' },
+  { id: 'exp-5', employee_id: 'demo-emp-5', employee_name: 'Valerio Verdi', expense_date: '2026-05-25', merchant: 'Pranzo di Lavoro - Bar Sport', amount: 18.00, category: 'Pasti', receipt_name: 'Scontrino_Pasti_BarSport.jpg', status: 'Pending', notes: 'Pranzo durante corso di formazione esterno' }
+]
+
 export default function App() {
   const [user, setUser] = useState(null)
   const [isDemo, setIsDemo] = useState(true)
@@ -420,6 +429,7 @@ export default function App() {
   const [leaves, setLeaves] = useState([])
   const [checklists, setChecklists] = useState([])
   const [performances, setPerformances] = useState([])
+  const [expenses, setExpenses] = useState([])
 
   // Navigazione principale: 'active', 'archived', 'templates', 'appointments', 'employees', 'absences'
   const [navTab, setNavTab] = useState('active')
@@ -490,8 +500,9 @@ export default function App() {
     const localLeaves = localStorage.getItem('demo-leaves')
     const localChecklists = localStorage.getItem('demo-checklists')
     const localPerformances = localStorage.getItem('demo-performances')
+    const localExpenses = localStorage.getItem('demo-expenses')
 
-    if (localJobs && localCandidates && localNotes && localAppointments && localTemplates && localEmployees && localLeaves && localChecklists && localPerformances) {
+    if (localJobs && localCandidates && localNotes && localAppointments && localTemplates && localEmployees && localLeaves && localChecklists && localPerformances && localExpenses) {
       setJobs(JSON.parse(localJobs))
       setCandidates(JSON.parse(localCandidates))
       setNotes(JSON.parse(localNotes))
@@ -501,6 +512,7 @@ export default function App() {
       setLeaves(JSON.parse(localLeaves))
       setChecklists(JSON.parse(localChecklists))
       setPerformances(JSON.parse(localPerformances))
+      setExpenses(JSON.parse(localExpenses))
     } else {
       localStorage.setItem('demo-jobs', JSON.stringify(DEFAULT_JOBS))
       localStorage.setItem('demo-candidates', JSON.stringify(DEFAULT_CANDIDATES))
@@ -511,6 +523,7 @@ export default function App() {
       localStorage.setItem('demo-leaves', JSON.stringify(DEFAULT_LEAVES))
       localStorage.setItem('demo-checklists', JSON.stringify(DEFAULT_CHECKLISTS))
       localStorage.setItem('demo-performances', JSON.stringify(DEFAULT_PERFORMANCES))
+      localStorage.setItem('demo-expenses', JSON.stringify(DEFAULT_EXPENSES))
 
       setJobs(DEFAULT_JOBS)
       setCandidates(DEFAULT_CANDIDATES)
@@ -521,6 +534,7 @@ export default function App() {
       setLeaves(DEFAULT_LEAVES)
       setChecklists(DEFAULT_CHECKLISTS)
       setPerformances(DEFAULT_PERFORMANCES)
+      setExpenses(DEFAULT_EXPENSES)
     }
   }
 
@@ -610,6 +624,19 @@ export default function App() {
       } catch (perfErr) {
         console.warn("Tabella '06app_CRM_HR_performances' non trovata in Supabase. Esegui la migrazione SQL.", perfErr)
         setPerformances([])
+      }
+
+      // Carica Note Spese con gestione errore soft
+      try {
+        const { data: dbExpenses, error: errExpenses } = await supabase
+          .from('06app_CRM_HR_expenses')
+          .select('*')
+          .order('expense_date', { ascending: false })
+        if (errExpenses) throw errExpenses
+        setExpenses(dbExpenses || [])
+      } catch (expErr) {
+        console.warn("Tabella '06app_CRM_HR_expenses' non trovata in Supabase. Esegui la migrazione SQL.", expErr)
+        setExpenses([])
       }
     } catch (e) {
       console.error('Errore durante il caricamento da Supabase:', e)
@@ -1062,14 +1089,17 @@ export default function App() {
       const updatedLeaves = leaves.filter(l => l.employee_id !== empId)
       const updatedChecklists = checklists.filter(c => c.employee_id !== empId)
       const updatedPerformances = performances.filter(p => p.employee_id !== empId)
+      const updatedExpenses = expenses.filter(exp => exp.employee_id !== empId)
       setEmployees(updatedEmployees)
       setLeaves(updatedLeaves)
       setChecklists(updatedChecklists)
       setPerformances(updatedPerformances)
+      setExpenses(updatedExpenses)
       localStorage.setItem('demo-employees', JSON.stringify(updatedEmployees))
       localStorage.setItem('demo-leaves', JSON.stringify(updatedLeaves))
       localStorage.setItem('demo-checklists', JSON.stringify(updatedChecklists))
       localStorage.setItem('demo-performances', JSON.stringify(updatedPerformances))
+      localStorage.setItem('demo-expenses', JSON.stringify(updatedExpenses))
     } else {
       try {
         const { error } = await supabase
@@ -1332,6 +1362,68 @@ export default function App() {
       }
     }
   }
+  // --- GESTIONE NOTE SPESE & RIMBORSI (HRIS) ---
+  const handleSaveExpense = async (expenseData) => {
+    if (isDemo) {
+      const newId = 'demo-exp-' + Math.random().toString(36).substr(2, 9)
+      const newExpense = {
+        ...expenseData,
+        id: newId,
+        created_at: new Date().toISOString()
+      }
+      const updatedExpenses = [newExpense, ...expenses]
+      setExpenses(updatedExpenses)
+      localStorage.setItem('demo-expenses', JSON.stringify(updatedExpenses))
+    } else {
+      try {
+        const { error } = await supabase
+          .from('06app_CRM_HR_expenses')
+          .insert([expenseData])
+        if (error) throw error
+        await loadSupabaseData()
+      } catch (e) {
+        alert("Errore nell'inserimento della nota spesa su Supabase: " + e.message)
+      }
+    }
+  }
+
+  const handleUpdateExpenseStatus = async (expenseId, newStatus) => {
+    if (isDemo) {
+      const updatedExpenses = expenses.map(e => e.id === expenseId ? { ...e, status: newStatus } : e)
+      setExpenses(updatedExpenses)
+      localStorage.setItem('demo-expenses', JSON.stringify(updatedExpenses))
+    } else {
+      try {
+        const { error } = await supabase
+          .from('06app_CRM_HR_expenses')
+          .update({ status: newStatus })
+          .eq('id', expenseId)
+        if (error) throw error
+        await loadSupabaseData()
+      } catch (e) {
+        alert("Errore nell'aggiornamento dello stato della nota spesa su Supabase: " + e.message)
+      }
+    }
+  }
+
+  const handleDeleteExpense = async (expenseId) => {
+    if (isDemo) {
+      const updatedExpenses = expenses.filter(e => e.id !== expenseId)
+      setExpenses(updatedExpenses)
+      localStorage.setItem('demo-expenses', JSON.stringify(updatedExpenses))
+    } else {
+      try {
+        const { error } = await supabase
+          .from('06app_CRM_HR_expenses')
+          .delete()
+          .eq('id', expenseId)
+        if (error) throw error
+        await loadSupabaseData()
+      } catch (e) {
+        alert("Errore nella cancellazione della nota spesa su Supabase: " + e.message)
+      }
+    }
+  }
 
   // Helpers
   const formatDateTime = (dateStr) => {
@@ -1405,7 +1497,8 @@ export default function App() {
           { id: 'templates', label: '📂 Anagrafica Templates', icon: <FileCode size={15} /> },
           { id: 'appointments', label: '📅 Appuntamenti', icon: <Calendar size={15} /> },
           { id: 'employees', label: '👥 Dipendenti', icon: <Users size={15} /> },
-          { id: 'absences', label: '🗓️ Presenze & Ferie', icon: <Calendar size={15} /> }
+          { id: 'absences', label: '🗓️ Presenze & Ferie', icon: <Calendar size={15} /> },
+          { id: 'expenses', label: '💼 Note Spese', icon: <Receipt size={15} /> }
         ].map(tab => (
           <button
             key={tab.id}
@@ -1623,6 +1716,14 @@ export default function App() {
                 onAddLeave={handleAddLeave}
                 onUpdateLeaveStatus={handleUpdateLeaveStatus}
                 onDeleteLeave={handleDeleteLeave}
+              />
+            ) : navTab === 'expenses' ? (
+              <ExpensesTab
+                employees={employees}
+                expenses={expenses}
+                onSaveExpense={handleSaveExpense}
+                onUpdateExpenseStatus={handleUpdateExpenseStatus}
+                onDeleteExpense={handleDeleteExpense}
               />
             ) : (
               /* JOBS DASHBOARD VIEWS: ACTIVE, ARCHIVED OR TEMPLATES */
