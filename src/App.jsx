@@ -947,6 +947,16 @@ export default function App() {
     try {
       setLoading(true);
       
+      // Helper per mappare l'ID temporaneo in un UUID valido e statico
+      const mapEmpId = (id) => {
+        if (id === 'demo-emp-1') return '11111111-1111-1111-1111-111111111111';
+        if (id === 'demo-emp-2') return '22222222-2222-2222-2222-222222222222';
+        if (id === 'demo-emp-3') return '33333333-3333-3333-3333-333333333333';
+        if (id === 'demo-emp-4') return '44444444-4444-4444-4444-444444444444';
+        if (id === 'demo-emp-5') return '55555555-5555-5555-5555-555555555555';
+        return id;
+      };
+
       // 1. Check if already seeded to avoid duplicates
       const { data: currentEmp, error: errEmpCheck } = await supabase
         .from('06app_CRM_HR_employees')
@@ -959,38 +969,69 @@ export default function App() {
         return;
       }
       
+      // Mappa e prepara i dipendenti con UUID validi
+      const seedEmployees = DEFAULT_EMPLOYEES.map(emp => ({
+        ...emp,
+        id: mapEmpId(emp.id)
+      }));
+
       // Insert default employees
       const { error: errEmpInsert } = await supabase
         .from('06app_CRM_HR_employees')
-        .insert(DEFAULT_EMPLOYEES);
+        .insert(seedEmployees);
       
       if (errEmpInsert) throw errEmpInsert;
 
-      // Seed Leaves
+      // Mappa le ferie (rimuovendo l'ID originario per far generare a Postgres un UUID randomico)
+      const seedLeaves = DEFAULT_LEAVES.map(({ id, ...rest }) => ({
+        ...rest,
+        employee_id: mapEmpId(rest.employee_id)
+      }));
       const { error: errLeaveInsert } = await supabase
         .from('06app_CRM_HR_leaves')
-        .insert(DEFAULT_LEAVES);
+        .insert(seedLeaves);
+      if (errLeaveInsert) throw errLeaveInsert;
       
-      // Seed Checklists
+      // Mappa le checklist (rimuovendo ID)
+      const seedChecklists = DEFAULT_CHECKLISTS.map(({ id, ...rest }) => ({
+        ...rest,
+        employee_id: mapEmpId(rest.employee_id)
+      }));
       const { error: errCheckInsert } = await supabase
         .from('06app_CRM_HR_checklists')
-        .insert(DEFAULT_CHECKLISTS);
+        .insert(seedChecklists);
+      if (errCheckInsert) throw errCheckInsert;
 
-      // Seed Performances
+      // Mappa le performance (rimuovendo ID)
+      const seedPerformances = DEFAULT_PERFORMANCES.map(({ id, ...rest }) => ({
+        ...rest,
+        employee_id: mapEmpId(rest.employee_id)
+      }));
       const { error: errPerfInsert } = await supabase
         .from('06app_CRM_HR_performances')
-        .insert(DEFAULT_PERFORMANCES);
+        .insert(seedPerformances);
+      if (errPerfInsert) throw errPerfInsert;
 
-      // Seed Expenses
+      // Mappa le spese (rimuovendo ID)
+      const seedExpenses = DEFAULT_EXPENSES.map(({ id, ...rest }) => ({
+        ...rest,
+        employee_id: mapEmpId(rest.employee_id)
+      }));
       const { error: errExpInsert } = await supabase
         .from('06app_CRM_HR_expenses')
-        .insert(DEFAULT_EXPENSES);
+        .insert(seedExpenses);
+      if (errExpInsert) throw errExpInsert;
 
-      // Seed Shifts
-      const demoShifts = generateDemoShifts(DEFAULT_EMPLOYEES);
+      // Mappa i turni (rimuovendo ID)
+      const rawShifts = generateDemoShifts(DEFAULT_EMPLOYEES);
+      const seedShifts = rawShifts.map(({ id, ...rest }) => ({
+        ...rest,
+        employee_id: mapEmpId(rest.employee_id)
+      }));
       const { error: errShiftInsert } = await supabase
         .from('06app_CRM_HR_shifts')
-        .insert(demoShifts);
+        .insert(seedShifts);
+      if (errShiftInsert) throw errShiftInsert;
 
       alert("Database Supabase popolato con successo! 🎉 Ricarico le tabelle...");
       await loadSupabaseData();
