@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Menu } from 'lucide-react'
 import Sidebar from './Sidebar'
 import BottomNav from './BottomNav'
+import SearchModal from './SearchModal'
 
 // ============================================================================
 // AppShell — wrapper layout principale dell'app
@@ -25,9 +26,6 @@ export default function AppShell({
   // Header pass-through
   header,                  // ReactNode (Header già configurato)
 
-  // Search
-  onOpenSearch,
-
   // Content
   children
 }) {
@@ -35,6 +33,7 @@ export default function AppShell({
     try { return localStorage.getItem('todos-hub-sidebar-collapsed') === '1' } catch { return false }
   })
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
 
   useEffect(() => {
     localStorage.setItem('todos-hub-sidebar-collapsed', collapsed ? '1' : '0')
@@ -45,12 +44,12 @@ export default function AppShell({
     const handler = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault()
-        onOpenSearch?.()
+        setSearchOpen(true)
       }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [onOpenSearch])
+  }, [])
 
   const handleNavigate = useCallback((item) => {
     onNavigate?.(item)
@@ -69,7 +68,18 @@ export default function AppShell({
         onToggleCollapse={() => setCollapsed(c => !c)}
         mobileOpen={mobileOpen}
         onCloseMobile={() => setMobileOpen(false)}
-        onOpenSearch={onOpenSearch}
+        onOpenSearch={() => setSearchOpen(true)}
+      />
+
+      {/* SEARCH MODAL ⌘K */}
+      <SearchModal
+        open={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        userRoles={userRoles}
+        onNavigate={(action) => {
+          // action = { navId, entityId? } → traduco in onNavigate del parent
+          if (action?.navId) onNavigate?.({ id: action.navId })
+        }}
       />
 
       {/* MAIN COLUMN */}

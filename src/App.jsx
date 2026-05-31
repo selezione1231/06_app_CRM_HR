@@ -2268,7 +2268,6 @@ export default function App() {
       currentItemId={currentNavItemId}
       onNavigate={handleHubNavigate}
       header={headerNode}
-      onOpenSearch={() => alert('🔍 Search globale ⌘K — in costruzione (F0)')}
     >
 
       {/* === HOME PAGE === */}
