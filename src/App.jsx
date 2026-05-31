@@ -16,6 +16,7 @@ import MezziTab from './components/MezziTab'
 import WP2Module from './components/workpro/WP2Module'
 import AppShell from './components/layout/AppShell'
 import HomePage from './components/layout/HomePage'
+import AuditLogViewer from './components/layout/AuditLogViewer'
 import PersonalApp from './components/personal/PersonalApp'
 import { findItemById, ROLES } from './lib/navigation'
 import { APP_MODE, resolveAppMode, canAccessHub } from './lib/appMode'
@@ -2495,6 +2496,8 @@ export default function App() {
               />
             ) : navTab === 'wp2' ? (
               <WP2Module />
+            ) : navTab === 'audit-log' ? (
+              <AuditLogViewer />
             ) : (
               /* JOBS DASHBOARD VIEWS: ACTIVE, ARCHIVED OR TEMPLATES */
               <Dashboard

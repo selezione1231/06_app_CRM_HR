@@ -262,6 +262,7 @@ export const NAV_TREE = [
         label: 'Cross-functional',
         items: [
           { id: 'ins-expiries',      label: 'Centro Scadenze',  icon: AlertOctagon, roles: STAFF, tabId: 'wp2-expiries' },
+          { id: 'ins-audit',         label: 'Storico modifiche', icon: Activity, roles: [ROLES.ADMIN, ROLES.HR, ROLES.DIREZIONE], tabId: 'audit-log' },
           { id: 'ins-exec',          label: 'Executive briefing', icon: Sparkles, roles: [ROLES.DIREZIONE, ROLES.ADMIN], comingSoon: true },
           { id: 'ins-ai',            label: 'AI Copilot',       icon: Bot,       roles: [ROLES.HR, ROLES.PM, ROLES.DIREZIONE, ROLES.ADMIN], comingSoon: true }
         ]
