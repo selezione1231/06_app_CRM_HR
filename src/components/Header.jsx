@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Sun, Moon, LogOut, Database, Award, User, Plus, Cloud, Bell, Trash2, CheckCheck, AlertTriangle, Calendar, Receipt, Smartphone, ExternalLink } from 'lucide-react'
 import { APP_MODE, getOtherAppUrl } from '../lib/appMode'
+import RoleSwitcher from './layout/RoleSwitcher'
 
 export default function Header({ 
   user, 
@@ -15,7 +16,9 @@ export default function Header({
   showSeedButton = false,
   onSeedDatabase,
   currentRole,
-  onRoleChange
+  onRoleChange,
+  userRoles = [],         // ← NEW: array di ruoli (RBAC multi)
+  onUserRolesChange       // ← NEW: callback per il multi-selector
 }) {
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('crm-theme') || 'dark'
@@ -252,32 +255,13 @@ export default function Header({
           <ExternalLink size={10} />
         </a>
 
-        {/* Role Selector */}
-        {onRoleChange && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginRight: '6px' }}>
-            <span style={{ fontSize: '0.62rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Ruolo:</span>
-            <select
-              value={currentRole || 'admin'}
-              onChange={(e) => onRoleChange(e.target.value)}
-              style={{
-                padding: '3px 8px',
-                borderRadius: 'var(--radius-sm)',
-                border: '1px solid var(--border-color)',
-                background: 'var(--bg-card)',
-                color: 'var(--text-primary)',
-                fontSize: '0.72rem',
-                fontWeight: 700,
-                outline: 'none',
-                cursor: 'pointer'
-              }}
-            >
-              <option value="admin">👑 Admin</option>
-              <option value="hr">👥 HR Manager</option>
-              <option value="servizi_generali">🔧 Servizi Generali</option>
-              <option value="pm">💼 Project Manager</option>
-              <option value="employee">🔑 Dipendente</option>
-            </select>
-          </div>
+        {/* Role Selector (RBAC multi-ruolo) */}
+        {onUserRolesChange && (
+          <RoleSwitcher
+            selectedRoles={userRoles}
+            onChange={onUserRolesChange}
+            isDemo={isDemo}
+          />
         )}
 
         {/* User profile capsule */}

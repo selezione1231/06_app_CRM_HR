@@ -19,6 +19,7 @@ import HomePage from './components/layout/HomePage'
 import PersonalApp from './components/personal/PersonalApp'
 import { findItemById, ROLES } from './lib/navigation'
 import { APP_MODE, resolveAppMode, canAccessHub } from './lib/appMode'
+import { getCurrentUserRoles, setDemoUserRoles, getDemoUserRoles, legacyToArray } from './lib/rbac'
 import { supabase, isSupabaseConfigured } from './supabaseClient'
 import { Calendar, Users, Briefcase, Video, Trash2, ExternalLink, ShieldAlert, FolderArchive, FileCode, Receipt, BarChart3, Clock, CalendarDays, Car, HardHat } from 'lucide-react'
 
@@ -567,6 +568,8 @@ export default function App() {
   const [fuelTransactions, setFuelTransactions] = useState([])
   const [verizonConfig, setVerizonConfig] = useState({ username: '', password: '', token: '' })
   const [currentRole, setCurrentRole] = useState(null)
+  // RBAC multi-ruolo: array di ruoli attivi per l'utente corrente
+  const [userRoles, setUserRoles] = useState([])
   const [notifications, setNotifications] = useState([])
   const [dismissedNotificationIds, setDismissedNotificationIds] = useState(() => {
     try {
@@ -647,8 +650,42 @@ export default function App() {
       }
     } else {
       setCurrentRole(null);
+      setUserRoles([]);
     }
   }, [user]);
+
+  // Carica i ruoli RBAC quando l'utente o il currentRole legacy cambiano.
+  // Ordine: DB (se Supabase) → demo store → fallback legacy.
+  useEffect(() => {
+    let cancelled = false
+    if (!user) return
+    const load = async () => {
+      // 1) Se ho un override demo salvato, ha priorità
+      const demo = getDemoUserRoles(user.id || user.email)
+      if (demo && demo.length > 0) {
+        if (!cancelled) setUserRoles(demo)
+        return
+      }
+      // 2) Provo a leggere dal DB (in dev senza Supabase fallback a legacy)
+      const roles = await getCurrentUserRoles({ legacyRole: currentRole, userId: user.id || user.email })
+      if (!cancelled) setUserRoles(roles)
+    }
+    load()
+    return () => { cancelled = true }
+  }, [user, currentRole]);
+
+  // Handler per il RoleSwitcher (multi-select) in modalità demo:
+  // persiste su localStorage e aggiorna lo stato.
+  const handleUserRolesChange = (roles) => {
+    setUserRoles(roles)
+    if (user) setDemoUserRoles(user.id || user.email, roles)
+    // Manteniamo coerente anche il currentRole legacy (per parti non ancora migrate)
+    if (roles.includes('admin'))                  setCurrentRole('admin')
+    else if (roles.includes('hr'))                setCurrentRole('hr')
+    else if (roles.includes('pm') || roles.includes('netimpl') || roles.includes('team_leader')) setCurrentRole('pm')
+    else if (roles.includes('servizi_gen') || roles.includes('it')) setCurrentRole('servizi_generali')
+    else                                          setCurrentRole('employee')
+  };
 
   // Controlla che la navTab sia compatibile col ruolo attivo corrente
   useEffect(() => {
@@ -2170,12 +2207,14 @@ export default function App() {
   //   - localStorage override (pulsante switch)
   //
   // Forzature:
-  //   - currentRole === 'employee' → forziamo personal (operai non vedono Hub)
+  //   - L'utente NON ha alcun ruolo non-employee → forzato a personal
   // ============================================================================
-  const hubUserRoles = mapLegacyRoleToHubRoles(currentRole)
+  // userRoles è già caricato dall'useEffect RBAC; in attesa del primo caricamento
+  // usa il mapping legacy come fallback per evitare flash di "no access"
+  const hubUserRoles = userRoles.length > 0 ? userRoles : legacyToArray(currentRole)
   const resolvedMode = resolveAppMode()
   const effectiveMode =
-    currentRole === 'employee' || !canAccessHub(hubUserRoles)
+    !canAccessHub(hubUserRoles)
       ? APP_MODE.PERSONAL
       : resolvedMode
 
@@ -2206,6 +2245,8 @@ export default function App() {
       onSeedDatabase={handleSeedSupabaseData}
       currentRole={currentRole}
       onRoleChange={setCurrentRole}
+      userRoles={hubUserRoles}
+      onUserRolesChange={handleUserRolesChange}
     />
   )
 
