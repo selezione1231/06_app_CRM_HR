@@ -13,8 +13,9 @@ import EmployeePortalTab from './components/EmployeePortalTab'
 import AnalyticsTab from './components/AnalyticsTab'
 import ShiftPlannerTab from './components/ShiftPlannerTab'
 import MezziTab from './components/MezziTab'
+import WP2Module from './components/workpro/WP2Module'
 import { supabase, isSupabaseConfigured } from './supabaseClient'
-import { Calendar, Users, Briefcase, Video, Trash2, ExternalLink, ShieldAlert, FolderArchive, FileCode, Receipt, BarChart3, Clock, CalendarDays, Car } from 'lucide-react'
+import { Calendar, Users, Briefcase, Video, Trash2, ExternalLink, ShieldAlert, FolderArchive, FileCode, Receipt, BarChart3, Clock, CalendarDays, Car, HardHat } from 'lucide-react'
 
 // --- SEED DATI DEMO DI FALLBACK ---
 const DEFAULT_JOBS = [
@@ -621,7 +622,8 @@ export default function App() {
         { id: 'expenses', roles: ['admin', 'hr', 'pm'] },
         { id: 'shifts', roles: ['admin', 'hr', 'pm'] },
         { id: 'analytics', roles: ['admin', 'hr', 'pm'] },
-        { id: 'mezzi', roles: ['admin', 'hr', 'servizi_generali', 'pm'] }
+        { id: 'mezzi', roles: ['admin', 'hr', 'servizi_generali', 'pm'] },
+        { id: 'wp2', roles: ['admin', 'hr', 'pm', 'servizi_generali'] }
       ].filter(t => t.roles.includes(currentRole));
 
       const isTabAvailable = availableTabs.some(t => t.id === navTab);
@@ -2193,7 +2195,8 @@ export default function App() {
           { id: 'expenses', label: '💼 Note Spese', icon: <Receipt size={15} />, roles: ['admin', 'hr', 'pm'] },
           { id: 'shifts', label: '📅 Planner Turni', icon: <Clock size={15} />, roles: ['admin', 'hr', 'pm'] },
           { id: 'analytics', label: '📊 HR Analytics', icon: <BarChart3 size={15} />, roles: ['admin', 'hr', 'pm'] },
-          { id: 'mezzi', label: '🚗 Mezzi', icon: <Car size={15} />, roles: ['admin', 'hr', 'servizi_generali', 'pm'] }
+          { id: 'mezzi', label: '🚗 Mezzi', icon: <Car size={15} />, roles: ['admin', 'hr', 'servizi_generali', 'pm'] },
+          { id: 'wp2', label: '🛠️ WP_2 (Work-Pro)', icon: <HardHat size={15} />, roles: ['admin', 'hr', 'pm', 'servizi_generali'] }
         ].filter(tab => tab.roles.includes(currentRole || 'admin')).map(tab => (
           <button
             key={tab.id}
@@ -2448,6 +2451,8 @@ export default function App() {
                 onSaveVerizonConfig={handleSaveVerizonConfig}
                 onImportFuelTransactions={handleImportFuelTransactions}
               />
+            ) : navTab === 'wp2' ? (
+              <WP2Module />
             ) : (
               /* JOBS DASHBOARD VIEWS: ACTIVE, ARCHIVED OR TEMPLATES */
               <Dashboard
