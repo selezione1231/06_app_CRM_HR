@@ -13,6 +13,7 @@ import EmpPayslips from '../workpro/employee/EmpPayslips'
 import { WP_EMPLOYEES } from '../workpro/shared/wpSeed'
 import { WP_COLORS, WP_GLOBAL_CSS } from '../workpro/shared/wpStyles'
 import { canAccessHub, getOtherAppUrl, APP_MODE } from '../../lib/appMode'
+import NotificationCenter from '../layout/NotificationCenter'
 
 // ============================================================================
 // PersonalApp — APP PERSONALE (noi.todos.it)
@@ -160,9 +161,20 @@ export default function PersonalApp({
               <ExternalLink size={10} />
             </a>
           )}
-          <button title="Notifiche" style={iconBtn}>
-            <Bell size={18} />
-          </button>
+          <NotificationCenter
+            userRoles={userRoles}
+            onNavigate={(item) => {
+              // Mapping action_url → view interna app personale
+              const map = {
+                'mie-richieste':  'leave_status',
+                'mie-buste-paga': 'payslips',
+                'mie-timbrature': 'hours',
+                'mio-giorno':     'home'
+              }
+              if (map[item.id]) setView(map[item.id])
+            }}
+            variant="personal"
+          />
           <button title="Profilo" onClick={() => alert(`Utente: ${employee?.name}\nCodice: ${employee?.code}\nEmail: ${user?.email || '—'}`)} style={iconBtn}>
             <User size={18} />
           </button>

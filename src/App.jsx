@@ -2257,6 +2257,7 @@ export default function App() {
       onRoleChange={setCurrentRole}
       userRoles={hubUserRoles}
       onUserRolesChange={handleUserRolesChange}
+      onNavigateHub={handleHubNavigate}
     />
   )
 
