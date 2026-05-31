@@ -1,9 +1,11 @@
 import React from 'react'
 import {
   Clock, CalendarDays, FileText, AlertOctagon, Sparkles,
-  ClipboardList, MessageSquare, CheckCircle2, Briefcase, Users2
+  ClipboardList, MessageSquare, CheckCircle2, Briefcase, Users2,
+  ExternalLink, Smartphone
 } from 'lucide-react'
 import { ROLE_LABELS } from '../../lib/navigation'
+import { APP_MODE, getOtherAppUrl } from '../../lib/appMode'
 
 // ============================================================================
 // HomePage — "La mia giornata"
@@ -34,32 +36,31 @@ export default function HomePage({ userRoles = [], userName, onNavigate, isDemo 
         </p>
       </div>
 
-      {/* Cards personali (visibili a tutti) */}
-      <Section title="Le mie cose">
-        <CardGrid>
-          <ActionCard
-            icon={Clock}
-            title="Timbra ore"
-            desc="Inserisci le ore lavorate oggi"
-            cta="Apri"
-            onClick={() => onNavigate({ id: 'mie-timbrature' })}
-          />
-          <ActionCard
-            icon={CalendarDays}
-            title="Richiedi ferie/permesso"
-            desc="Manda al PM la tua richiesta"
-            cta="Richiedi"
-            onClick={() => onNavigate({ id: 'mie-richieste' })}
-          />
-          <ActionCard
-            icon={FileText}
-            title="Buste paga"
-            desc="Le tue ultime buste paga"
-            cta="Apri"
-            onClick={() => onNavigate({ id: 'mie-buste-paga' })}
-          />
-        </CardGrid>
-      </Section>
+      {/* Banner accesso Personal app (per timbrare, ferie, buste paga) */}
+      <a
+        href={getOtherAppUrl(APP_MODE.HUB)}
+        style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          gap: '12px', padding: '14px 18px', marginBottom: '20px',
+          background: 'linear-gradient(135deg, var(--primary, #A82238) 0%, var(--primary-dark, #7d1a2a) 100%)',
+          color: 'white', borderRadius: '12px', textDecoration: 'none',
+          boxShadow: '0 4px 14px rgba(168,34,56,0.25)',
+          flexWrap: 'wrap'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <Smartphone size={22} />
+          <div>
+            <div style={{ fontWeight: 800 }}>Vai alla tua area personale</div>
+            <div style={{ fontSize: '0.78rem', opacity: 0.9 }}>
+              Timbra ore · Richiedi ferie · Buste paga · Documenti
+            </div>
+          </div>
+        </div>
+        <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, fontSize: '0.85rem' }}>
+          noi.todos.it <ExternalLink size={14} />
+        </span>
+      </a>
 
       {/* Cards per PM/NetImpl */}
       {hasAny(userRoles, ['pm', 'netimpl', 'team_leader']) && (

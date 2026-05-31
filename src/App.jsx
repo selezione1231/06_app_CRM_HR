@@ -16,7 +16,9 @@ import MezziTab from './components/MezziTab'
 import WP2Module from './components/workpro/WP2Module'
 import AppShell from './components/layout/AppShell'
 import HomePage from './components/layout/HomePage'
+import PersonalApp from './components/personal/PersonalApp'
 import { findItemById, ROLES } from './lib/navigation'
+import { APP_MODE, resolveAppMode, canAccessHub } from './lib/appMode'
 import { supabase, isSupabaseConfigured } from './supabaseClient'
 import { Calendar, Users, Briefcase, Video, Trash2, ExternalLink, ShieldAlert, FolderArchive, FileCode, Receipt, BarChart3, Clock, CalendarDays, Car, HardHat } from 'lucide-react'
 
@@ -2159,44 +2161,36 @@ export default function App() {
     return <Login onLoginSuccess={handleLoginSuccess} />
   }
 
-  if (currentRole === 'employee') {
+  // ============================================================================
+  // APP MODE: Personal (noi.todos.it) vs Hub (vercel)
+  // ----------------------------------------------------------------------------
+  // Il mode è determinato da:
+  //   - hostname (noi.todos.it → personal; vercel → hub)
+  //   - query param ?mode=personal|hub (dev/override)
+  //   - localStorage override (pulsante switch)
+  //
+  // Forzature:
+  //   - currentRole === 'employee' → forziamo personal (operai non vedono Hub)
+  // ============================================================================
+  const hubUserRoles = mapLegacyRoleToHubRoles(currentRole)
+  const resolvedMode = resolveAppMode()
+  const effectiveMode =
+    currentRole === 'employee' || !canAccessHub(hubUserRoles)
+      ? APP_MODE.PERSONAL
+      : resolvedMode
+
+  if (effectiveMode === APP_MODE.PERSONAL) {
     return (
-      <div className="app-container">
-        {/* Header / Navbar */}
-        <Header 
-          user={user} 
-          isDemo={isDemo} 
-          onLogout={handleLogout} 
-          onOpenJobModal={() => {}}
-          notifications={notifications}
-          onMarkAsRead={handleMarkNotificationAsRead}
-          onMarkAllAsRead={handleMarkAllNotificationsAsRead}
-          onClearNotifications={handleClearNotifications}
-          onOpenManual={() => setShowManualModal(true)}
-          currentRole={currentRole}
-          onRoleChange={setCurrentRole}
-        />
-        <EmployeePortalTab
-          user={user}
-          employees={employees}
-          checklists={checklists}
-          performances={performances}
-          leaves={leaves}
-          expenses={expenses}
-          shifts={shifts}
-          vehicles={vehicles}
-          onUpdateChecklistTask={handleUpdateChecklistTask}
-          onAddLeave={handleAddLeave}
-          onSaveExpense={handleSaveExpense}
-          onDeleteLeave={handleDeleteLeave}
-          onDeleteExpense={handleDeleteExpense}
-        />
-      </div>
+      <PersonalApp
+        user={user}
+        userRoles={hubUserRoles}
+        onLogout={handleLogout}
+        isDemo={isDemo}
+      />
     )
   }
 
-  // --- Render principale (Todos Hub shell con sidebar) ----------------------
-  const hubUserRoles = mapLegacyRoleToHubRoles(currentRole)
+  // --- Render Hub (sidebar con tutti i moduli di lavoro) -------------------
   const headerNode = (
     <Header
       user={user}

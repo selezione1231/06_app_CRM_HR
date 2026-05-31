@@ -1,19 +1,16 @@
 import React, { useState, useMemo, useEffect } from 'react'
-import { Monitor, Smartphone, LogIn, AlertTriangle, X } from 'lucide-react'
+import { LogIn, AlertTriangle, X } from 'lucide-react'
 import { WP_COLORS, wpButton, wpCard, WP_GLOBAL_CSS } from './shared/wpStyles'
 import { WP_PM, WP_EMPLOYEES, WP_ASSIGNMENTS, getCurrentWeekDates } from './shared/wpSeed'
 import PMConsole from './pm/PMConsole'
-import EmployeeApp from './employee/EmployeeApp'
 
 // ============================================================================
-// WP2Module — entry point del modulo Work-Pro Todos
-// Switch tra:
-//   - Console P.M. (uso da ufficio) — replica del .docx "Work-Pro Todos"
-//   - APP Dipendente (uso mobile)   — replica del portale noi.todos.it:4443
+// WP2Module — entry point del modulo Work-Pro Todos (Console P.M.)
+// Replica del .docx "Work-Pro Todos" usata dai PM / Network Implementation.
+// L'app dipendente è stata spostata in PersonalApp (noi.todos.it).
 // ============================================================================
 
 export default function WP2Module() {
-  const [view, setView] = useState('pm')           // 'pm' | 'employee'
   const [pmId, setPmId] = useState(null)            // P.M. loggato
   const [showLoginAlert, setShowLoginAlert] = useState(false)
   const [unassignedCount, setUnassignedCount] = useState(0)
@@ -53,52 +50,21 @@ export default function WP2Module() {
   return (
     <div style={{ background: WP_COLORS.bgAlt, minHeight: 'calc(100vh - 120px)', padding: '20px' }}>
 
-      {/* TOP BAR — switch tra console PM e app dipendente */}
-      <div style={{
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        marginBottom: '16px', flexWrap: 'wrap', gap: '12px'
-      }}>
-        <div>
-          <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: WP_COLORS.primary, margin: 0 }}>
-            🛠️ Work-Pro Todos
-          </h1>
-          <p style={{ fontSize: '0.78rem', color: WP_COLORS.textMuted, margin: '2px 0 0 0' }}>
-            Gestione cantieri · squadre · automezzi · reperibilità
-          </p>
-        </div>
-        <div style={{ display: 'flex', gap: '8px', background: 'white', padding: '4px', borderRadius: '10px', border: `1px solid ${WP_COLORS.border}` }}>
-          <button
-            onClick={() => setView('pm')}
-            style={{
-              ...wpButton(view === 'pm' ? 'primary' : 'ghost', 'sm'),
-              padding: '8px 14px'
-            }}
-          >
-            <Monitor size={14} /> Console P.M.
-          </button>
-          <button
-            onClick={() => setView('employee')}
-            style={{
-              ...wpButton(view === 'employee' ? 'primary' : 'ghost', 'sm'),
-              padding: '8px 14px'
-            }}
-          >
-            <Smartphone size={14} /> APP Dipendente
-          </button>
-        </div>
+      <div style={{ marginBottom: '16px' }}>
+        <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: WP_COLORS.primary, margin: 0 }}>
+          🛠️ Work-Pro Todos — Console P.M.
+        </h1>
+        <p style={{ fontSize: '0.78rem', color: WP_COLORS.textMuted, margin: '2px 0 0 0' }}>
+          Gestione cantieri · squadre · automezzi · reperibilità
+        </p>
       </div>
 
       {/* CONSOLE P.M. */}
-      {view === 'pm' && (
-        !pmId ? (
-          <PMLogin onLogin={handlePMLogin} />
-        ) : (
-          <PMConsole pmId={pmId} onLogout={() => { setPmId(null); setShowLoginAlert(false); }} />
-        )
+      {!pmId ? (
+        <PMLogin onLogin={handlePMLogin} />
+      ) : (
+        <PMConsole pmId={pmId} onLogout={() => { setPmId(null); setShowLoginAlert(false); }} />
       )}
-
-      {/* APP DIPENDENTE — preview responsive */}
-      {view === 'employee' && <EmployeeApp />}
 
       {/* MODAL ALERT post-login: dipendenti senza cantiere */}
       {showLoginAlert && (

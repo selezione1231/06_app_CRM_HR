@@ -86,36 +86,6 @@ export const NAV_TREE = [
     tabId: 'home'
   },
 
-  // ============== 👤 PERSONALE ==============
-  {
-    id: 'area-personale',
-    label: 'Personale',
-    icon: UserCircle2,
-    type: 'area',
-    roles: ALL,
-    groups: [
-      {
-        id: 'personale-attivita',
-        label: 'Attività',
-        items: [
-          { id: 'mio-giorno',      label: 'La mia giornata',    icon: Activity,    roles: ALL, comingSoon: true },
-          { id: 'mie-timbrature',  label: 'Le mie timbrature',  icon: Clock,       roles: ALL, tabId: 'wp2-emp-hours' },
-          { id: 'mie-richieste',   label: 'Ferie / Permessi',   icon: CalendarDays,roles: ALL, tabId: 'wp2-emp-leave' },
-          { id: 'mie-note',        label: 'Note al PM',         icon: MessageSquare, roles: ALL, comingSoon: true }
-        ]
-      },
-      {
-        id: 'personale-info',
-        label: 'I miei dati',
-        items: [
-          { id: 'mie-dotazioni',   label: 'Mie dotazioni & DPI',icon: HardHat,     roles: ALL, tabId: 'wp2-emp-equipment' },
-          { id: 'mie-buste-paga',  label: 'Buste paga',         icon: FileText,    roles: ALL, tabId: 'wp2-emp-payslips' },
-          { id: 'mia-formazione',  label: 'Mia formazione',     icon: GraduationCap, roles: ALL, comingSoon: true }
-        ]
-      }
-    ]
-  },
-
   // ============== 🚧 OPERATIONS ==============
   {
     id: 'area-operations',
@@ -300,12 +270,12 @@ export const NAV_TREE = [
   }
 ]
 
-// --- Mobile bottom nav (4 voci essenziali) ----------------------------------
+// --- Mobile bottom nav (Hub aziendale, voci essenziali per ruoli staff) ----
 export const MOBILE_BOTTOM_NAV = [
-  { id: 'home',              label: 'Home',   icon: Home,        roles: ALL },
-  { id: 'mie-timbrature',    label: 'Ore',    icon: Clock,       roles: ALL },
-  { id: 'mie-richieste',     label: 'Ferie',  icon: CalendarDays,roles: ALL },
-  { id: 'mie-buste-paga',    label: 'Paga',   icon: FileText,    roles: ALL }
+  { id: 'home',              label: 'Home',     icon: Home,         roles: ALL },
+  { id: 'ops-weekly',        label: 'Planner',  icon: Calendar,     roles: [ROLES.PM, ROLES.NETIMPL, ROLES.TEAM_LEADER, ROLES.ADMIN] },
+  { id: 'ins-expiries',      label: 'Scadenze', icon: AlertOctagon, roles: STAFF },
+  { id: 'hr-employees',      label: 'Persone',  icon: Users2,       roles: [ROLES.HR, ROLES.SERVIZI_GEN, ROLES.PM, ROLES.ADMIN] }
 ]
 
 // --- Helpers ----------------------------------------------------------------
