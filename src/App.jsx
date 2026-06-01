@@ -14,6 +14,7 @@ import AnalyticsTab from './components/AnalyticsTab'
 import ShiftPlannerTab from './components/ShiftPlannerTab'
 import MezziTab from './components/MezziTab'
 import WP2Module from './components/workpro/WP2Module'
+import WP2Route from './components/workpro/WP2Route'
 import AppShell from './components/layout/AppShell'
 import HomePage from './components/layout/HomePage'
 import AuditLogViewer from './components/layout/AuditLogViewer'
@@ -2496,7 +2497,19 @@ export default function App() {
               />
             ) : navTab === 'wp2' ? (
               <WP2Module />
-            ) : navTab === 'audit-log' ? (
+            ) : navTab === 'wp2-clients'  ? <WP2Route view="clients"   />
+            : navTab === 'wp2-sites'      ? <WP2Route view="sites"     />
+            : navTab === 'wp2-vehicles'   ? <WP2Route view="vehicles"  />
+            : navTab === 'wp2-expiries'   ? <WP2Route view="expiries"  />
+            : navTab === 'wp2-oncall'     ? <WP2Route view="oncall"    />
+            : navTab === 'wp2-pm'         ? <WP2Route view="pm"        />
+            : navTab === 'wp2-docs'       ? <WP2Route view="docs"      />
+            : navTab === 'wp2-prints'     ? <WP2Route view="prints"    />
+            : navTab === 'wp2-leaves'     ? <WP2Route view="leaves"    />
+            : navTab === 'wp2-time'       ? <WP2Route view="time"      />
+            : navTab === 'wp2-notes'      ? <WP2Route view="notes"     />
+            : navTab === 'wp2-employees'  ? <WP2Route view="employees" />
+            : navTab === 'audit-log' ? (
               <AuditLogViewer />
             ) : (
               /* JOBS DASHBOARD VIEWS: ACTIVE, ARCHIVED OR TEMPLATES */
