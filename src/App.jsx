@@ -689,27 +689,34 @@ export default function App() {
     else                                          setCurrentRole('employee')
   };
 
-  // Controlla che la navTab sia compatibile col ruolo attivo corrente
+  // Controlla che la navTab sia compatibile col ruolo attivo corrente.
+  // NOTA: con l'introduzione di Todos Hub (sidebar + RBAC) la navigazione
+  // primaria è guidata da `currentNavItemId` e `navigation.js`. Questo
+  // effect serve solo come fallback per evitare di restare su un tab
+  // legacy non più accessibile dopo un cambio ruolo.
   useEffect(() => {
-    if (currentRole) {
-      const availableTabs = [
-        { id: 'active', roles: ['admin', 'hr'] },
-        { id: 'archived', roles: ['admin', 'hr'] },
-        { id: 'templates', roles: ['admin', 'hr'] },
-        { id: 'appointments', roles: ['admin', 'hr'] },
-        { id: 'employees', roles: ['admin', 'hr', 'servizi_generali', 'pm'] },
-        { id: 'absences', roles: ['admin', 'hr', 'pm'] },
-        { id: 'expenses', roles: ['admin', 'hr', 'pm'] },
-        { id: 'shifts', roles: ['admin', 'hr', 'pm'] },
-        { id: 'analytics', roles: ['admin', 'hr', 'pm'] },
-        { id: 'mezzi', roles: ['admin', 'hr', 'servizi_generali', 'pm'] },
-        { id: 'wp2', roles: ['admin', 'hr', 'pm', 'servizi_generali'] }
-      ].filter(t => t.roles.includes(currentRole));
+    if (!currentRole) return
 
-      const isTabAvailable = availableTabs.some(t => t.id === navTab);
-      if (!isTabAvailable && availableTabs.length > 0) {
-        setNavTab(availableTabs[0].id);
-      }
+    // Tab "nuovi" sempre validi (gestiti via Hub sidebar + RBAC)
+    const newTabs = new Set(['home', 'audit-log'])
+    if (navTab && (newTabs.has(navTab) || navTab.startsWith('wp2'))) return
+
+    const availableTabs = [
+      { id: 'active', roles: ['admin', 'hr'] },
+      { id: 'archived', roles: ['admin', 'hr'] },
+      { id: 'templates', roles: ['admin', 'hr'] },
+      { id: 'appointments', roles: ['admin', 'hr'] },
+      { id: 'employees', roles: ['admin', 'hr', 'servizi_generali', 'pm'] },
+      { id: 'absences', roles: ['admin', 'hr', 'pm'] },
+      { id: 'expenses', roles: ['admin', 'hr', 'pm'] },
+      { id: 'shifts', roles: ['admin', 'hr', 'pm'] },
+      { id: 'analytics', roles: ['admin', 'hr', 'pm'] },
+      { id: 'mezzi', roles: ['admin', 'hr', 'servizi_generali', 'pm'] }
+    ].filter(t => t.roles.includes(currentRole));
+
+    const isTabAvailable = availableTabs.some(t => t.id === navTab);
+    if (!isTabAvailable && availableTabs.length > 0) {
+      setNavTab(availableTabs[0].id);
     }
   }, [currentRole, navTab]);
 
