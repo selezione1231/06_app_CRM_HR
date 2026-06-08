@@ -648,7 +648,8 @@ export default function App() {
   useEffect(() => {
     if (user) {
       if (!currentRole) {
-        setCurrentRole(user.role || (['recruiter.demo@azienda.it', 'f.locatelli@todos.it'].includes(user.email) ? 'admin' : 'employee'));
+        const systemRole = user.user_metadata?.role || user.app_metadata?.role || (user.role && user.role !== 'authenticated' ? user.role : null);
+        setCurrentRole(systemRole || (['recruiter.demo@azienda.it', 'f.locatelli@todos.it'].includes(user.email) ? 'admin' : 'employee'));
       }
     } else {
       setCurrentRole(null);
