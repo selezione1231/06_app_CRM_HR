@@ -92,7 +92,7 @@ export default function AnalyticsTab({
           📊 HR Analytics & Reportistica C-Level
         </h2>
         <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '4px 0 0 0' }}>
-          Panoramica finanziaria ed organizzativa di Todos Select per supportare le decisioni aziendali strategiche.
+          Panoramica finanziaria ed organizzativa di Todos Hub per supportare le decisioni aziendali strategiche.
         </p>
       </div>
 

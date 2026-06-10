@@ -109,9 +109,9 @@ export default function Login({ onLoginSuccess, setDemoMode }) {
             fontSize: '1.8rem',
             letterSpacing: '-0.02em',
             marginBottom: '6px'
-          }}>Todos Select</h1>
+          }}>Todos Hub</h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-            Accedi per gestire le tue selezioni ed analizzare i CV
+            Accedi alla piattaforma aziendale integrata
           </p>
         </div>
 

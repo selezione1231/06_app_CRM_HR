@@ -59,7 +59,7 @@ export default function EmployeePortalTab({
       amount: '42.50',
       merchant: 'Ristorante Da Mario',
       category: 'Pasti',
-      notes: 'Cena con cliente per rinnovo contratto Todos Select',
+      notes: 'Cena con cliente per rinnovo contratto Todos',
       fileName: 'scontrino_ristorante_mario.jpg'
     },
     {

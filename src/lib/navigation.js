@@ -163,11 +163,11 @@ export const NAV_TREE = [
         label: 'HSE',
         items: [
           { id: 'hse-dashboard',     label: 'Cruscotto HSE',             icon: ShieldCheck, roles: [ROLES.HSE, ROLES.HR, ROLES.ADMIN], tabId: 'hse' },
-          { id: 'hse-certs',         label: 'Certificazioni dipendenti', icon: ShieldCheck, roles: [ROLES.HSE, ROLES.HR, ROLES.ADMIN], tabId: 'hse' },
-          { id: 'hse-sanitaria',     label: 'Sorveglianza sanitaria',    icon: HeartPulse, roles: [ROLES.HSE, ROLES.HR, ROLES.ADMIN], tabId: 'hse' },
-          { id: 'hse-dpi',           label: 'DPI',                       icon: HardHat,    roles: [ROLES.HSE, ROLES.SERVIZI_GEN, ROLES.ADMIN], tabId: 'hse' },
-          { id: 'hse-infortuni',     label: 'Near miss / Infortuni',     icon: AlertTriangle, roles: [ROLES.HSE, ROLES.HR, ROLES.DIREZIONE, ROLES.ADMIN], tabId: 'hse' },
-          { id: 'hse-dvr',           label: 'DVR & procedure',           icon: FileText,   roles: [ROLES.HSE, ROLES.ADMIN], tabId: 'hse' }
+          { id: 'hse-certs',         label: 'Certificazioni dipendenti', icon: ShieldCheck, roles: [ROLES.HSE, ROLES.HR, ROLES.ADMIN], tabId: 'hse-certs' },
+          { id: 'hse-sanitaria',     label: 'Sorveglianza sanitaria',    icon: HeartPulse, roles: [ROLES.HSE, ROLES.HR, ROLES.ADMIN], tabId: 'hse-medical' },
+          { id: 'hse-dpi',           label: 'DPI',                       icon: HardHat,    roles: [ROLES.HSE, ROLES.SERVIZI_GEN, ROLES.ADMIN], tabId: 'hse-dpi' },
+          { id: 'hse-infortuni',     label: 'Near miss / Infortuni',     icon: AlertTriangle, roles: [ROLES.HSE, ROLES.HR, ROLES.DIREZIONE, ROLES.ADMIN], tabId: 'hse-incidents' },
+          { id: 'hse-dvr',           label: 'DVR & procedure',           icon: FileText,   roles: [ROLES.HSE, ROLES.ADMIN], tabId: 'hse-dvr' }
         ]
       }
     ]

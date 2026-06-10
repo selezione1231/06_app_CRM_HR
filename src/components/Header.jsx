@@ -93,7 +93,7 @@ export default function Header({
             display: 'block',
             lineHeight: '1.1'
           }}>
-            Todos Select
+            Todos Hub
           </span>
           <span style={{
             fontSize: '0.62rem',

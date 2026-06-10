@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import {
   ShieldCheck, HardHat, HeartPulse, AlertTriangle, FileText,
   CheckCircle2, Clock, XCircle, Plus, ChevronRight, Users,
@@ -81,14 +81,27 @@ const SEVERITY_COLORS = {
 
 const TABS = [
   { id: 'dashboard', label: 'Cruscotto',          icon: Activity },
-  { id: 'dpi',       label: 'DPI',                icon: HardHat },
+  { id: 'certs',     label: 'Certificazioni',     icon: CheckCircle2 },
   { id: 'medical',   label: 'Sorveglianza San.',  icon: HeartPulse },
+  { id: 'dpi',       label: 'DPI',                icon: HardHat },
   { id: 'incidents', label: 'Near Miss/Infortuni',icon: AlertTriangle },
   { id: 'dvr',       label: 'DVR & Procedure',    icon: FileText }
 ]
 
-export default function HSEModule() {
-  const [activeTab, setActiveTab] = useState('dashboard')
+// Certificazioni / abilitazioni del personale (demo)
+const CERTIFICATIONS = [
+  { id: 'cert-1', employee_id: 'demo-emp-1', name: 'Corso Sicurezza Generale + Specifica (rischio alto)', achieved: '2023-02-10', expiry: '2028-02-10' },
+  { id: 'cert-2', employee_id: 'demo-emp-1', name: 'Preposto',                                            achieved: '2024-05-18', expiry: '2026-05-18' },
+  { id: 'cert-3', employee_id: 'demo-emp-2', name: 'Primo Soccorso (Gruppo B)',                           achieved: '2024-09-12', expiry: '2027-09-12' },
+  { id: 'cert-4', employee_id: 'demo-emp-3', name: 'Antincendio (rischio medio)',                         achieved: '2022-11-03', expiry: '2025-11-03' },
+  { id: 'cert-5', employee_id: 'demo-emp-5', name: 'PLE — Piattaforme di Lavoro Elevabili',               achieved: '2023-06-21', expiry: '2028-06-21' },
+  { id: 'cert-6', employee_id: 'demo-emp-5', name: 'Lavori in quota + DPI III cat.',                      achieved: '2024-03-30', expiry: '2026-06-15' },
+  { id: 'cert-7', employee_id: 'demo-emp-4', name: 'Corso Sicurezza Generale (rischio basso)',            achieved: '2023-01-15', expiry: '2028-01-15' }
+]
+
+export default function HSEModule({ view = 'dashboard' }) {
+  const [activeTab, setActiveTab] = useState(view)
+  useEffect(() => { setActiveTab(view) }, [view])
   const [dpiAssignments, setDpiAssignments] = useState(() => loadFromLS(LS_DPI, INITIAL_DPI_ASSIGNMENTS))
   const [incidents, setIncidents] = useState(() => loadFromLS(LS_INCIDENTS, INITIAL_INCIDENTS))
   const [showIncidentForm, setShowIncidentForm] = useState(false)
@@ -117,7 +130,7 @@ export default function HSEModule() {
   const getEmpName = (empId) => EMPLOYEES.find(e => e.id === empId)?.name || empId
 
   const inputStyle = { width: '100%', boxSizing: 'border-box', padding: '8px 12px', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '8px', fontSize: '0.85rem', outline: 'none' }
-  const selectStyle = { ...inputStyle, background: 'white' }
+  const selectStyle = { ...inputStyle, background: 'var(--bg-card, white)' }
 
   return (
     <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
@@ -132,7 +145,7 @@ export default function HSEModule() {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: '4px', marginBottom: '24px', background: '#f1f5f9', padding: '4px', borderRadius: '10px', width: 'fit-content' }}>
+      <div style={{ display: 'flex', gap: '4px', marginBottom: '24px', background: 'var(--bg-app, #f1f5f9)', padding: '4px', borderRadius: '10px', width: 'fit-content' }}>
         {TABS.map(tab => {
           const Icon = tab.icon
           const active = activeTab === tab.id
@@ -163,7 +176,7 @@ export default function HSEModule() {
             ].map(k => {
               const Icon = k.icon
               return (
-                <div key={k.label} style={{ background: 'white', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '10px', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div key={k.label} style={{ background: 'var(--bg-card, white)', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '10px', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div style={{ width: 36, height: 36, borderRadius: '8px', background: k.color + '15', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Icon size={17} style={{ color: k.color }} />
                   </div>
@@ -177,11 +190,11 @@ export default function HSEModule() {
           </div>
 
           <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary, #1e293b)', marginBottom: '12px' }}>Stato conformità per dipendente</h3>
-          <div style={{ background: 'white', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '12px', overflow: 'hidden' }}>
+          <div style={{ background: 'var(--bg-card, white)', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '12px', overflow: 'hidden' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead><tr style={{ background: '#f8fafc' }}>
+              <thead><tr style={{ background: 'var(--bg-app, #f8fafc)' }}>
                 {['Dipendente', 'Reparto', 'Visita Medica', 'Corso Sicurezza', 'DPI assegnati'].map(h => (
-                  <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', letterSpacing: '0.04em', borderBottom: '1px solid #e2e8f0' }}>{h}</th>
+                  <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', letterSpacing: '0.04em', borderBottom: '1px solid var(--border-color, #e2e8f0)' }}>{h}</th>
                 ))}
               </tr></thead>
               <tbody>
@@ -192,7 +205,7 @@ export default function HSEModule() {
                   const medCfg = STATUS_COLORS[medStatus]
                   const safCfg = STATUS_COLORS[safStatus]
                   return (
-                    <tr key={emp.id} style={{ borderBottom: idx < EMPLOYEES.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
+                    <tr key={emp.id} style={{ borderBottom: idx < EMPLOYEES.length - 1 ? '1px solid var(--border-color, #f1f5f9)' : 'none' }}>
                       <td style={{ padding: '12px 14px', fontWeight: 600, fontSize: '0.84rem', color: 'var(--text-primary, #1e293b)' }}>{emp.name}</td>
                       <td style={{ padding: '12px 14px', fontSize: '0.8rem', color: 'var(--text-muted, #64748b)' }}>{emp.dept}</td>
                       <td style={{ padding: '12px 14px' }}>
@@ -217,15 +230,52 @@ export default function HSEModule() {
         </div>
       )}
 
+      {/* ===== CERTIFICAZIONI ===== */}
+      {activeTab === 'certs' && (
+        <div>
+          <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary, #1e293b)', marginBottom: '12px' }}>Certificazioni e abilitazioni del personale</h3>
+          <div style={{ background: 'var(--bg-card, white)', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '12px', overflow: 'hidden' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead><tr style={{ background: 'var(--bg-app, #f8fafc)' }}>
+                {['Dipendente', 'Certificazione', 'Conseguita il', 'Scadenza', 'Stato'].map(h => (
+                  <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', letterSpacing: '0.04em', borderBottom: '1px solid var(--border-color, #e2e8f0)' }}>{h}</th>
+                ))}
+              </tr></thead>
+              <tbody>
+                {CERTIFICATIONS.map((cert, idx) => {
+                  const status = getExpiryStatus(cert.expiry)
+                  const sCfg = STATUS_COLORS[status]
+                  const days = getDaysUntil(cert.expiry)
+                  return (
+                    <tr key={cert.id} style={{ borderBottom: idx < CERTIFICATIONS.length - 1 ? '1px solid var(--border-color, #f1f5f9)' : 'none' }}>
+                      <td style={{ padding: '12px 14px', fontWeight: 600, fontSize: '0.84rem' }}>{getEmpName(cert.employee_id)}</td>
+                      <td style={{ padding: '12px 14px', fontSize: '0.83rem' }}>{cert.name}</td>
+                      <td style={{ padding: '12px 14px', fontSize: '0.78rem', color: 'var(--text-muted, #64748b)' }}>{cert.achieved}</td>
+                      <td style={{ padding: '12px 14px', fontSize: '0.82rem' }}>
+                        {cert.expiry}
+                        {days !== null && <span style={{ marginLeft: '6px', fontSize: '0.72rem', color: days < 0 ? '#ef4444' : days <= 30 ? '#d97706' : '#94a3b8' }}>({days < 0 ? `${Math.abs(days)}gg scaduta` : `${days}gg`})</span>}
+                      </td>
+                      <td style={{ padding: '12px 14px' }}>
+                        <span style={{ padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 600, background: sCfg.bg, color: sCfg.color }}>{sCfg.label}</span>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {/* ===== DPI ===== */}
       {activeTab === 'dpi' && (
         <div>
           <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary, #1e293b)', marginBottom: '12px' }}>Assegnazioni DPI</h3>
-          <div style={{ background: 'white', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '12px', overflow: 'hidden', marginBottom: '24px' }}>
+          <div style={{ background: 'var(--bg-card, white)', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '12px', overflow: 'hidden', marginBottom: '24px' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead><tr style={{ background: '#f8fafc' }}>
+              <thead><tr style={{ background: 'var(--bg-app, #f8fafc)' }}>
                 {['Dipendente', 'DPI', 'Categoria', 'Assegnato il', 'Scadenza', 'Stato'].map(h => (
-                  <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em', borderBottom: '1px solid #e2e8f0' }}>{h}</th>
+                  <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', letterSpacing: '0.04em', borderBottom: '1px solid var(--border-color, #e2e8f0)' }}>{h}</th>
                 ))}
               </tr></thead>
               <tbody>
@@ -234,12 +284,12 @@ export default function HSEModule() {
                   const status = getExpiryStatus(da.expiry)
                   const sCfg = STATUS_COLORS[status]
                   return (
-                    <tr key={da.id} style={{ borderBottom: idx < dpiAssignments.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
+                    <tr key={da.id} style={{ borderBottom: idx < dpiAssignments.length - 1 ? '1px solid var(--border-color, #f1f5f9)' : 'none' }}>
                       <td style={{ padding: '11px 14px', fontWeight: 600, fontSize: '0.83rem' }}>{getEmpName(da.employee_id)}</td>
                       <td style={{ padding: '11px 14px', fontSize: '0.83rem' }}>{dpi?.type}</td>
-                      <td style={{ padding: '11px 14px', fontSize: '0.78rem', color: '#64748b' }}>{dpi?.category}</td>
-                      <td style={{ padding: '11px 14px', fontSize: '0.78rem', color: '#64748b' }}>{da.assigned_at}</td>
-                      <td style={{ padding: '11px 14px', fontSize: '0.78rem', color: '#64748b' }}>{da.expiry}</td>
+                      <td style={{ padding: '11px 14px', fontSize: '0.78rem', color: 'var(--text-muted, #64748b)' }}>{dpi?.category}</td>
+                      <td style={{ padding: '11px 14px', fontSize: '0.78rem', color: 'var(--text-muted, #64748b)' }}>{da.assigned_at}</td>
+                      <td style={{ padding: '11px 14px', fontSize: '0.78rem', color: 'var(--text-muted, #64748b)' }}>{da.expiry}</td>
                       <td style={{ padding: '11px 14px' }}>
                         <span style={{ padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 600, background: sCfg.bg, color: sCfg.color }}>{sCfg.label}</span>
                       </td>
@@ -253,11 +303,11 @@ export default function HSEModule() {
           <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary, #1e293b)', marginBottom: '12px' }}>Catalogo DPI aziendali</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '10px' }}>
             {DPI_CATALOG.map(dpi => (
-              <div key={dpi.id} style={{ background: 'white', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '10px', padding: '14px', display: 'flex', gap: '10px' }}>
+              <div key={dpi.id} style={{ background: 'var(--bg-card, white)', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '10px', padding: '14px', display: 'flex', gap: '10px' }}>
                 <HardHat size={18} style={{ color: 'var(--primary, #A82238)', marginTop: 2, flexShrink: 0 }} />
                 <div>
                   <div style={{ fontWeight: 600, fontSize: '0.83rem', color: 'var(--text-primary, #1e293b)', marginBottom: '3px' }}>{dpi.type}</div>
-                  <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{dpi.category} · {dpi.norm}</div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted, #64748b)' }}>{dpi.category} · {dpi.norm}</div>
                   <div style={{ fontSize: '0.68rem', marginTop: '4px', padding: '2px 6px', borderRadius: '4px', display: 'inline-block', background: dpi.risk_level === 'Alto' ? '#fef2f2' : '#fffbeb', color: dpi.risk_level === 'Alto' ? '#ef4444' : '#d97706', fontWeight: 600 }}>
                     Rischio {dpi.risk_level}
                   </div>
@@ -271,11 +321,11 @@ export default function HSEModule() {
       {/* ===== SORVEGLIANZA SANITARIA ===== */}
       {activeTab === 'medical' && (
         <div>
-          <div style={{ background: 'white', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '12px', overflow: 'hidden' }}>
+          <div style={{ background: 'var(--bg-card, white)', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '12px', overflow: 'hidden' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead><tr style={{ background: '#f8fafc' }}>
+              <thead><tr style={{ background: 'var(--bg-app, #f8fafc)' }}>
                 {['Dipendente', 'Reparto', 'Visita Medica Scade', 'Stato VM', 'Corso Sicurezza Scade', 'Stato CS'].map(h => (
-                  <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em', borderBottom: '1px solid #e2e8f0' }}>{h}</th>
+                  <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', letterSpacing: '0.04em', borderBottom: '1px solid var(--border-color, #e2e8f0)' }}>{h}</th>
                 ))}
               </tr></thead>
               <tbody>
@@ -287,9 +337,9 @@ export default function HSEModule() {
                   const medCfg = STATUS_COLORS[medStatus]
                   const safCfg = STATUS_COLORS[safStatus]
                   return (
-                    <tr key={emp.id} style={{ borderBottom: idx < EMPLOYEES.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
+                    <tr key={emp.id} style={{ borderBottom: idx < EMPLOYEES.length - 1 ? '1px solid var(--border-color, #f1f5f9)' : 'none' }}>
                       <td style={{ padding: '12px 14px', fontWeight: 600, fontSize: '0.84rem' }}>{emp.name}</td>
-                      <td style={{ padding: '12px 14px', fontSize: '0.8rem', color: '#64748b' }}>{emp.dept}</td>
+                      <td style={{ padding: '12px 14px', fontSize: '0.8rem', color: 'var(--text-muted, #64748b)' }}>{emp.dept}</td>
                       <td style={{ padding: '12px 14px', fontSize: '0.82rem' }}>
                         {emp.medical_expiry}
                         {medDays !== null && <span style={{ marginLeft: '6px', fontSize: '0.72rem', color: medDays < 0 ? '#ef4444' : medDays <= 30 ? '#d97706' : '#94a3b8' }}>({medDays < 0 ? `${Math.abs(medDays)}gg scaduta` : `${medDays}gg`})</span>}
@@ -326,7 +376,7 @@ export default function HSEModule() {
               const sevCfg = SEVERITY_COLORS[inc.severity] || SEVERITY_COLORS['Bassa']
               const statusColor = inc.status === 'Chiuso' ? '#16a34a' : inc.status === 'Aperto' ? '#ef4444' : '#d97706'
               return (
-                <div key={inc.id} style={{ background: 'white', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '12px', padding: '16px 18px' }}>
+                <div key={inc.id} style={{ background: 'var(--bg-card, white)', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '12px', padding: '16px 18px' }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '10px' }}>
                     <AlertTriangle size={18} style={{ color: sevCfg.color, marginTop: 2, flexShrink: 0 }} />
                     <div style={{ flex: 1 }}>
@@ -335,7 +385,7 @@ export default function HSEModule() {
                         <span style={{ padding: '2px 8px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 700, background: sevCfg.bg, color: sevCfg.color }}>Severità {inc.severity}</span>
                         <span style={{ padding: '2px 8px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 700, background: statusColor + '15', color: statusColor }}>{inc.status}</span>
                       </div>
-                      <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '3px' }}>{inc.date} · {inc.location} · {inc.employee_involved}</div>
+                      <div style={{ fontSize: '0.78rem', color: 'var(--text-muted, #64748b)', marginTop: '3px' }}>{inc.date} · {inc.location} · {inc.employee_involved}</div>
                     </div>
                   </div>
                   <div style={{ fontSize: '0.83rem', color: 'var(--text-secondary, #475569)', marginBottom: '8px' }}>{inc.description}</div>
@@ -351,46 +401,46 @@ export default function HSEModule() {
 
           {showIncidentForm && (
             <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-              <div style={{ background: 'white', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '520px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+              <div style={{ background: 'var(--bg-card, white)', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '520px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
                 <h2 style={{ margin: '0 0 18px', fontSize: '1.1rem', fontWeight: 800 }}>Registra evento sicurezza</h2>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                     <div>
-                      <label style={{ fontSize: '0.72rem', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '4px' }}>Data *</label>
+                      <label style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted, #64748b)', display: 'block', marginBottom: '4px' }}>Data *</label>
                       <input type="date" value={incidentForm.date} onChange={e => setIncidentForm(f => ({ ...f, date: e.target.value }))} style={inputStyle} />
                     </div>
                     <div>
-                      <label style={{ fontSize: '0.72rem', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '4px' }}>Tipo</label>
+                      <label style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted, #64748b)', display: 'block', marginBottom: '4px' }}>Tipo</label>
                       <select value={incidentForm.type} onChange={e => setIncidentForm(f => ({ ...f, type: e.target.value }))} style={selectStyle}>
                         <option>Near Miss</option><option>Infortunio</option><option>Malattia professionale</option>
                       </select>
                     </div>
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.72rem', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '4px' }}>Severità</label>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted, #64748b)', display: 'block', marginBottom: '4px' }}>Severità</label>
                     <select value={incidentForm.severity} onChange={e => setIncidentForm(f => ({ ...f, severity: e.target.value }))} style={selectStyle}>
                       <option>Bassa</option><option>Media</option><option>Alta</option>
                     </select>
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.72rem', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '4px' }}>Luogo</label>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted, #64748b)', display: 'block', marginBottom: '4px' }}>Luogo</label>
                     <input value={incidentForm.location} onChange={e => setIncidentForm(f => ({ ...f, location: e.target.value }))} placeholder="es. Cantiere BG24043" style={inputStyle} />
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.72rem', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '4px' }}>Dipendente coinvolto</label>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted, #64748b)', display: 'block', marginBottom: '4px' }}>Dipendente coinvolto</label>
                     <input value={incidentForm.employee_involved} onChange={e => setIncidentForm(f => ({ ...f, employee_involved: e.target.value }))} style={inputStyle} />
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.72rem', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '4px' }}>Descrizione *</label>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted, #64748b)', display: 'block', marginBottom: '4px' }}>Descrizione *</label>
                     <textarea value={incidentForm.description} onChange={e => setIncidentForm(f => ({ ...f, description: e.target.value }))} rows={3} style={{ ...inputStyle, resize: 'vertical' }} />
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.72rem', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '4px' }}>Azione correttiva</label>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted, #64748b)', display: 'block', marginBottom: '4px' }}>Azione correttiva</label>
                     <textarea value={incidentForm.corrective_action} onChange={e => setIncidentForm(f => ({ ...f, corrective_action: e.target.value }))} rows={2} style={{ ...inputStyle, resize: 'vertical' }} />
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: '10px', marginTop: '18px', justifyContent: 'flex-end' }}>
-                  <button onClick={() => setShowIncidentForm(false)} style={{ padding: '9px 18px', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '8px', background: 'white', cursor: 'pointer', fontWeight: 600 }}>Annulla</button>
+                  <button onClick={() => setShowIncidentForm(false)} style={{ padding: '9px 18px', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '8px', background: 'var(--bg-card, white)', cursor: 'pointer', fontWeight: 600 }}>Annulla</button>
                   <button onClick={handleAddIncident} style={{ padding: '9px 18px', border: 'none', borderRadius: '8px', background: 'var(--primary, #A82238)', color: 'white', cursor: 'pointer', fontWeight: 700 }}>Registra</button>
                 </div>
               </div>
@@ -409,11 +459,11 @@ export default function HSEModule() {
             { title: 'Manuale Sicurezza Elettrica', version: 'Rev. 1.0', date: '2023-09-01', status: 'Da aggiornare', desc: 'Linee guida sicurezza impianti elettrici e attività di manutenzione.' },
             { title: 'Registro Infortuni', version: 'Anno 2026', date: '2026-01-01', status: 'Vigente', desc: 'Registro obbligatorio D.Lgs. 81/08 art. 53 degli infortuni sul lavoro.' }
           ].map(doc => (
-            <div key={doc.title} style={{ background: 'white', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '10px', padding: '16px 18px', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+            <div key={doc.title} style={{ background: 'var(--bg-card, white)', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '10px', padding: '16px 18px', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
               <FileText size={20} style={{ color: 'var(--primary, #A82238)', marginTop: 2, flexShrink: 0 }} />
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--text-primary, #1e293b)', marginBottom: '3px' }}>{doc.title}</div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '6px' }}>{doc.version} · Aggiornato: {doc.date}</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)', marginBottom: '6px' }}>{doc.version} · Aggiornato: {doc.date}</div>
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary, #475569)' }}>{doc.desc}</div>
               </div>
               <span style={{ padding: '3px 10px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 700, whiteSpace: 'nowrap', background: doc.status === 'Vigente' ? '#f0fdf4' : '#fffbeb', color: doc.status === 'Vigente' ? '#16a34a' : '#d97706' }}>

@@ -733,7 +733,8 @@ export default function App() {
       navTab.startsWith('asset-') ||
       navTab.startsWith('it-') ||
       navTab.startsWith('buy-') ||
-      navTab.startsWith('ins-')
+      navTab.startsWith('ins-') ||
+      navTab.startsWith('hse-')
     )) return
 
     const availableTabs = [
@@ -2558,7 +2559,17 @@ export default function App() {
             ) : navTab === 'documenti' ? (
               <DocumentiModule userRoles={hubUserRoles} />
             ) : navTab === 'hse' ? (
-              <HSEModule />
+              <HSEModule view="dashboard" />
+            ) : navTab === 'hse-certs' ? (
+              <HSEModule view="certs" />
+            ) : navTab === 'hse-medical' ? (
+              <HSEModule view="medical" />
+            ) : navTab === 'hse-dpi' ? (
+              <HSEModule view="dpi" />
+            ) : navTab === 'hse-incidents' ? (
+              <HSEModule view="incidents" />
+            ) : navTab === 'hse-dvr' ? (
+              <HSEModule view="dvr" />
             ) : navTab === 'formazione' ? (
               <FormazioneModule />
             ) : navTab === 'offboarding' ? (
@@ -2649,7 +2660,7 @@ export default function App() {
           <div className="modal-content glass-panel" style={{ background: 'var(--bg-card)', maxWidth: '900px', width: '90%', height: '85vh', display: 'flex', flexDirection: 'column' }}>
             <div className="modal-header" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
               <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                📖 Manuale Operativo - Todos Select Suite
+                📖 Manuale Operativo - Todos Hub
               </h3>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                 <button 
@@ -2671,7 +2682,7 @@ export default function App() {
             {/* Modal Body with Printable Class */}
             <div className="modal-body printable-manual" style={{ padding: '24px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div style={{ textAlign: 'center', borderBottom: '2px solid var(--primary)', paddingBottom: '16px', marginBottom: '10px' }}>
-                <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.8rem', color: 'var(--primary)' }}>Todos Select Suite</h1>
+                <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.8rem', color: 'var(--primary)' }}>Todos Hub</h1>
                 <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   GUIDA OPERATIVA COMPLETA ED ERGONOMICA (ATS & HRIS)
                 </span>
