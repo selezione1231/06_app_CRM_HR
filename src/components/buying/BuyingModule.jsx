@@ -6,7 +6,8 @@ import {
 import {
   ModulePage, ModuleHeader, TabBar, StatGrid, Card, TableWrap, THead, tdStyle,
   Pill, ExpiryPill, ProgressBar, EmptyState, Modal, Field, inputStyle, selectStyle,
-  useSharedState, fmtEuro, fmtDate, expiryInfo, ExportButton
+  useSharedState, fmtEuro, fmtDate, expiryInfo, ExportButton,
+  ImportButton, pickField, cellToISODate
 } from '../shared/ui'
 
 // ============================================================================
@@ -92,7 +93,7 @@ export default function BuyingModule({ view = 'suppliers' }) {
   const [tab, setTab] = useState(view)
   useEffect(() => { setTab(view) }, [view])
 
-  const [suppliers] = useSharedState('todos-buy-suppliers', INITIAL_SUPPLIERS)
+  const [suppliers, setSuppliers] = useSharedState('todos-buy-suppliers', INITIAL_SUPPLIERS)
   const [listini] = useSharedState('todos-buy-listini', INITIAL_LISTINI)
   const [accordi] = useSharedState('todos-buy-accordi', INITIAL_ACCORDI)
   const [rda, setRda] = useSharedState('todos-buy-rda', INITIAL_RDA)
@@ -154,6 +155,26 @@ export default function BuyingModule({ view = 'suppliers' }) {
       {tab === 'suppliers' && (
         <TableWrap
           exportName="anagrafica_fornitori"
+          extraActions={
+            <ImportButton
+              label="Importa fornitori"
+              confirmText={'Importare {n} fornitori da "{file}"?'}
+              mapRow={(r, i) => {
+                const name = pickField(r, 'Ragione sociale', 'Nome', 'Fornitore', 'Denominazione')
+                if (!name) return null
+                return {
+                  id: `sup-imp-${Date.now()}-${i}`,
+                  name: String(name),
+                  category: String(pickField(r, 'Categoria', 'Settore', 'Tipo') || 'Altro'),
+                  vat: String(pickField(r, 'P.IVA', 'PIVA', 'Partita IVA', 'VAT') || ''),
+                  rating: Number(pickField(r, 'Rating (1-5)', 'Rating', 'Valutazione')) || 3,
+                  durc_expiry: cellToISODate(pickField(r, 'Scadenza DURC', 'DURC', 'Durc scadenza')) || null,
+                  contact: String(pickField(r, 'Contatto', 'Email', 'E-mail', 'Referente') || '')
+                }
+              }}
+              onImport={(rows) => setSuppliers([...rows, ...suppliers])}
+            />
+          }
           exportRows={suppliers.map(s => ({
             'Ragione sociale': s.name, 'Categoria': s.category, 'P.IVA': s.vat,
             'Rating (1-5)': s.rating, 'Scadenza DURC': s.durc_expiry, 'Contatto': s.contact

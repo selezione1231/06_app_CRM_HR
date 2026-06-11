@@ -6,7 +6,8 @@ import {
 import {
   ModulePage, ModuleHeader, TabBar, StatGrid, Card, TableWrap, THead, tdStyle,
   Pill, ExpiryPill, ProgressBar, EmptyState, Modal, Field, inputStyle, selectStyle,
-  useSharedState, fmtEuro, fmtNum, fmtDate, expiryInfo, ExportButton
+  useSharedState, fmtEuro, fmtNum, fmtDate, expiryInfo, ExportButton,
+  ImportButton, pickField, cellToISODate
 } from '../shared/ui'
 
 // ============================================================================
@@ -258,6 +259,26 @@ export default function AssetSGModule({ view = 'fuel' }) {
           <StatGrid stats={equipStats} />
           <TableWrap
             exportName="beni_attrezzature"
+            extraActions={
+              <ImportButton
+                label="Importa attrezzature"
+                confirmText={'Importare {n} attrezzature da "{file}"?'}
+                mapRow={(r, i) => {
+                  const name = pickField(r, 'Attrezzatura', 'Nome', 'Descrizione', 'Bene')
+                  if (!name) return null
+                  return {
+                    id: `e-imp-${Date.now()}-${i}`,
+                    name: String(name),
+                    category: String(pickField(r, 'Categoria', 'Tipo') || 'Strumentazione'),
+                    serial: String(pickField(r, 'Matricola', 'Seriale', 'S/N', 'SN', 'Serial') || ''),
+                    assignee: String(pickField(r, 'Assegnatario', 'Assegnato a', 'Operatore', 'Squadra') || ''),
+                    status: String(pickField(r, 'Stato', 'Status') || 'Operativo'),
+                    next_check: cellToISODate(pickField(r, 'Prossima verifica', 'Scadenza verifica', 'Verifica', 'Scadenza')) || null
+                  }
+                }}
+                onImport={(rows) => setEquipment([...rows, ...equipment])}
+              />
+            }
             exportRows={equipment.map(e => ({
               'Attrezzatura': e.name, 'Categoria': e.category, 'Matricola': e.serial,
               'Assegnatario': e.assignee, 'Stato': e.status, 'Prossima verifica': e.next_check ?? ''

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { X, Inbox, Download } from 'lucide-react'
+import React, { useState, useEffect, useRef } from 'react'
+import { X, Inbox, Download, Upload } from 'lucide-react'
 
 // ============================================================================
 // shared/ui — primitive UI riusabili per i moduli del Todos Hub
@@ -181,17 +181,107 @@ export function ExportButton({ rows, filename, label = 'Esporta XLSX' }) {
   )
 }
 
+// --- Import XLSX -----------------------------------------------------------------
+// Legge la prima colonna-intestazioni di un .xlsx/.xls/.csv e restituisce le
+// righe come array di oggetti. Speculare a exportRowsToXlsx.
+
+// Cerca un valore nella riga provando più nomi di colonna (case/accenti-insensitive).
+export function pickField(row, ...names) {
+  const norm = (s) => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, '')
+  for (const key of Object.keys(row)) {
+    for (const n of names) {
+      if (norm(key) === norm(n)) {
+        const v = row[key]
+        if (v !== undefined && v !== null && String(v).trim() !== '') return v
+      }
+    }
+  }
+  return ''
+}
+
+// Converte una cella data (seriale Excel, Date o stringa) in 'YYYY-MM-DD' (o '').
+export function cellToISODate(v) {
+  if (v === undefined || v === null || v === '') return ''
+  if (typeof v === 'number') {
+    const d = new Date(Math.round((v - 25569) * 86400 * 1000))
+    return isNaN(d) ? '' : d.toISOString().slice(0, 10)
+  }
+  if (v instanceof Date) return isNaN(v) ? '' : v.toISOString().slice(0, 10)
+  const s = String(v).trim()
+  // dd/mm/yyyy o dd-mm-yyyy → ISO
+  const it = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})$/)
+  if (it) return `${it[3]}-${it[2].padStart(2, '0')}-${it[1].padStart(2, '0')}`
+  const d = new Date(s)
+  return isNaN(d) ? '' : d.toISOString().slice(0, 10)
+}
+
+// Pulsante "Importa XLSX": apre il file picker, parsa il foglio, mappa le righe
+// con mapRow (riga grezza → entità; ritorna null/undefined per scartare la riga),
+// chiede conferma e chiama onImport(entità[]).
+export function ImportButton({ onImport, mapRow, label = 'Importa XLSX', confirmText }) {
+  const inputRef = useRef(null)
+  const [busy, setBusy] = useState(false)
+
+  const handleFile = async (e) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    setBusy(true)
+    try {
+      const XLSX = await import('xlsx')
+      const wb = XLSX.read(await file.arrayBuffer())
+      const ws = wb.Sheets[wb.SheetNames[0]]
+      const raw = XLSX.utils.sheet_to_json(ws, { defval: '' })
+      if (raw.length === 0) { alert('Il file non contiene righe di dati.'); return }
+      const rows = (mapRow ? raw.map((r, i) => mapRow(r, i)) : raw).filter(Boolean)
+      if (rows.length === 0) {
+        alert('Nessuna riga valida trovata. Controlla le intestazioni di colonna del file.')
+        return
+      }
+      const skipped = raw.length - rows.length
+      const msg = (confirmText || 'Importare {n} righe da "{file}"?')
+        .replace('{n}', rows.length).replace('{file}', file.name)
+        + (skipped > 0 ? `\n(${skipped} righe scartate perché incomplete)` : '')
+      if (!window.confirm(msg)) return
+      await onImport(rows)
+    } catch (err) {
+      alert("Errore durante l'import: " + err.message)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <>
+      <input ref={inputRef} type="file" accept=".xlsx,.xls,.csv" style={{ display: 'none' }} onChange={handleFile} />
+      <button
+        className="btn btn-secondary"
+        onClick={() => inputRef.current?.click()}
+        disabled={busy}
+        title="Carica un file Excel: la prima riga deve contenere le intestazioni di colonna"
+        style={{ padding: '5px 10px', fontSize: '0.75rem', opacity: busy ? 0.6 : 1 }}
+      >
+        <Upload size={13} /> {busy ? 'Importo…' : label}
+      </button>
+    </>
+  )
+}
+
 // TableWrap: se riceve exportRows/exportName mostra la barra con il pulsante
-// "Esporta XLSX" sopra la tabella.
-export function TableWrap({ children, exportRows, exportName }) {
+// "Esporta XLSX" sopra la tabella; extraActions aggiunge altri pulsanti
+// (es. ImportButton) nella stessa barra.
+export function TableWrap({ children, exportRows, exportName, extraActions }) {
   return (
     <Card>
-      {exportRows && exportRows.length > 0 && (
+      {((exportRows && exportRows.length > 0) || extraActions) && (
         <div style={{
-          display: 'flex', justifyContent: 'flex-end', padding: '8px 10px',
+          display: 'flex', justifyContent: 'flex-end', gap: '8px', padding: '8px 10px',
           borderBottom: '1px solid var(--border-color)'
         }}>
-          <ExportButton rows={exportRows} filename={exportName || 'export'} />
+          {extraActions}
+          {exportRows && exportRows.length > 0 && (
+            <ExportButton rows={exportRows} filename={exportName || 'export'} />
+          )}
         </div>
       )}
       <div className="table-wrap">{children}</div>

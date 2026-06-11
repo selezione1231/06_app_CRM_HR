@@ -1735,6 +1735,32 @@ export default function App() {
     }
   }
 
+  // Import massivo da Excel: un solo insert (e un solo reload) per tutte le righe.
+  const handleImportEmployees = async (rows) => {
+    if (isDemo) {
+      const stamped = rows.map((r, i) => ({
+        ...r,
+        id: 'demo-emp-imp-' + Date.now() + '-' + i,
+        created_at: new Date().toISOString()
+      }))
+      const updatedEmployees = [...stamped, ...employees]
+      setEmployees(updatedEmployees)
+      localStorage.setItem('demo-employees', JSON.stringify(updatedEmployees))
+      alert(`Importati ${stamped.length} dipendenti.`)
+    } else {
+      try {
+        const { error } = await supabase
+          .from('06app_Noi_employees')
+          .insert(rows)
+        if (error) throw error
+        await loadSupabaseData()
+        alert(`Importati ${rows.length} dipendenti su Supabase.`)
+      } catch (e) {
+        alert("Errore nell'import dei dipendenti su Supabase: " + e.message)
+      }
+    }
+  }
+
   const handleUpdateEmployee = async (empId, updatedData) => {
     if (isDemo) {
       const updatedEmployees = employees.map(e => e.id === empId ? { ...e, ...updatedData } : e)
@@ -2486,6 +2512,7 @@ export default function App() {
                 employees={employees}
                 candidates={candidates}
                 onAddEmployee={handleAddEmployee}
+                onImportEmployees={handleImportEmployees}
                 onUpdateEmployee={handleUpdateEmployee}
                 onDeleteEmployee={handleDeleteEmployee}
                 checklists={checklists}

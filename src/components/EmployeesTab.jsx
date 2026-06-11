@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { ImportButton, pickField, cellToISODate } from './shared/ui'
 
 const getSafeAssets = (assets) => {
   if (!assets) return []
@@ -15,9 +16,10 @@ const getSafeAssets = (assets) => {
 }
 
 export default function EmployeesTab({ 
-  employees, 
-  candidates, 
-  onAddEmployee, 
+  employees,
+  candidates,
+  onAddEmployee,
+  onImportEmployees,
   onUpdateEmployee, 
   onDeleteEmployee,
   checklists = [],
@@ -330,6 +332,32 @@ export default function EmployeesTab({
               <button className="btn btn-secondary" onClick={() => setShowOrgChart(!showOrgChart)}>
                 <span>{showOrgChart ? '📄 Elenco & Fascicoli' : '🏢 Vedi Organigramma'}</span>
               </button>
+              {onImportEmployees && (
+                <ImportButton
+                  label="Importa da Excel"
+                  confirmText={'Importare {n} dipendenti da "{file}"?'}
+                  mapRow={(r) => {
+                    const name = pickField(r, 'Nome', 'Nome e Cognome', 'Nominativo', 'Dipendente', 'Name')
+                    if (!name) return null
+                    return {
+                      name: String(name),
+                      email: String(pickField(r, 'Email', 'E-mail', 'Mail') || ''),
+                      phone: String(pickField(r, 'Telefono', 'Cellulare', 'Tel', 'Phone') || ''),
+                      department: String(pickField(r, 'Reparto', 'Dipartimento', 'Area', 'Department') || 'Tech'),
+                      role: String(pickField(r, 'Ruolo', 'Mansione', 'Posizione', 'Role') || ''),
+                      hire_date: cellToISODate(pickField(r, 'Data assunzione', 'Assunzione', 'Assunto il', 'Hire date')) || null,
+                      contract_type: String(pickField(r, 'Contratto', 'Tipo contratto', 'Contract') || 'Tempo Indeterminato'),
+                      ral: Number(pickField(r, 'RAL', 'Retribuzione', 'Stipendio')) || null,
+                      trial_period_end: cellToISODate(pickField(r, 'Fine prova', 'Periodo di prova', 'Scadenza prova')) || null,
+                      document_id_expiry: cellToISODate(pickField(r, 'Scadenza documento', 'Scadenza CI', "Scadenza carta d'identita")) || null,
+                      safety_course_expiry: cellToISODate(pickField(r, 'Scadenza corso sicurezza', 'Corso sicurezza', 'Scadenza sicurezza')) || null,
+                      medical_visit_expiry: cellToISODate(pickField(r, 'Scadenza visita medica', 'Visita medica', 'Scadenza visita')) || null,
+                      assets: []
+                    }
+                  }}
+                  onImport={onImportEmployees}
+                />
+              )}
               <button className="btn btn-primary" onClick={openAddForm}>
                 <span>+ Aggiungi Dipendente</span>
               </button>
