@@ -4,6 +4,7 @@ import { WP_COLORS } from '../shared/wpStyles'
 // Home APP Dipendente — tile rossi grandi come da video
 export default function EmpHome({ employeeId, onGo }) {
   const tiles = [
+    { id: 'clockin',      label: 'TIMBRA ⏱' },
     { id: 'mytodos',      label: 'MY TODOS' },
     { id: 'planning',     label: 'PIANIFICAZIONE PERSONALE' },
     { id: 'teams',        label: 'PIANIFICAZIONE SQUADRE' },

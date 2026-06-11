@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { LogIn, LogOut, Clock, MapPin, AlertCircle, CheckCircle2, History, Calendar } from 'lucide-react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { LogIn, LogOut, Clock, MapPin, AlertCircle, CheckCircle2, History, Calendar, CloudUpload, CloudOff } from 'lucide-react'
+import { isSharedMode, syncPendingEntries, countPending } from '../../../lib/timbrature'
 
 // ============================================================================
-// EmpClockIn — timbratura real-time per i dipendenti in modalità "realtime"
-// Funziona completamente offline: i dati sono in localStorage.
-// In produzione si connetterà a Supabase.
+// EmpClockIn — timbratura geolocalizzata OFFLINE-FIRST
+// Salva sempre prima in localStorage (funziona senza segnale); quando torna
+// la rete sincronizza su Supabase (tabella 06app_Noi_timbrature) con upsert
+// idempotente su local_id.
 // ============================================================================
 
 const LS_ENTRIES_PREFIX = 'todos-clockin-entries-'
@@ -62,6 +64,10 @@ export default function EmpClockIn({ employeeId = 'wp-emp-1', employeeName = 'Di
   const [geoPos, setGeoPos] = useState(null)
   const [note, setNote] = useState('')
   const [flash, setFlash] = useState(null) // { type, msg }
+  const shared = useRef(isSharedMode()).current
+  const [syncState, setSyncState] = useState('idle') // idle | syncing | offline
+  const entriesRef = useRef(entries)
+  entriesRef.current = entries
 
   // Timer
   useEffect(() => {
@@ -71,6 +77,30 @@ export default function EmpClockIn({ employeeId = 'wp-emp-1', employeeName = 'Di
     const id = setInterval(tick, 1000)
     return () => clearInterval(id)
   }, [openSession])
+
+  // ── SYNC OFFLINE-FIRST ──────────────────────────────────────────────────
+  // Spedisce a Supabase le timbrature chiuse non ancora inviate.
+  const trySync = useCallback(async () => {
+    if (!shared) return
+    if (navigator.onLine === false) { setSyncState('offline'); return }
+    setSyncState('syncing')
+    const { entries: updated, synced } = await syncPendingEntries(employeeId, employeeName, entriesRef.current)
+    if (synced > 0) {
+      setEntries(updated)
+      saveEntries(employeeId, updated)
+    }
+    setSyncState(countPending(updated) > 0 ? 'offline' : 'idle')
+  }, [employeeId, employeeName, shared])
+
+  // Al mount, quando torna la rete, e ogni 2 minuti come rete di sicurezza
+  useEffect(() => {
+    if (!shared) return
+    trySync()
+    const onOnline = () => trySync()
+    window.addEventListener('online', onOnline)
+    const id = setInterval(trySync, 120000)
+    return () => { window.removeEventListener('online', onOnline); clearInterval(id) }
+  }, [trySync, shared])
 
   const requestGeo = useCallback(() => {
     if (!navigator.geolocation) { setGeoStatus('denied'); return }
@@ -83,6 +113,10 @@ export default function EmpClockIn({ employeeId = 'wp-emp-1', employeeName = 'Di
       () => setGeoStatus('denied')
     )
   }, [])
+
+  // Rileva la posizione in automatico all'apertura (se il permesso è dato,
+  // entrata/uscita risultano già geolocalizzate senza tap aggiuntivi)
+  useEffect(() => { requestGeo() }, [requestGeo])
 
   const handleClockIn = () => {
     const session = {
@@ -117,6 +151,8 @@ export default function EmpClockIn({ employeeId = 'wp-emp-1', employeeName = 'Di
     setNote('')
     setFlash({ type: 'out', msg: `Uscita registrata — ${formatDuration(durationMs)} ore lavorate` })
     setTimeout(() => setFlash(null), 4000)
+    // Prova subito a spedire al cloud (se offline resterà in coda)
+    setTimeout(trySync, 100)
   }
 
   const isIn = !!openSession
@@ -141,6 +177,21 @@ export default function EmpClockIn({ employeeId = 'wp-emp-1', employeeName = 'Di
             {employeeName} · {new Date().toLocaleDateString('it-IT', { weekday: 'long', day: '2-digit', month: 'long' })}
           </p>
         </div>
+        {shared && (
+          <span style={{
+            marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '5px',
+            fontSize: '0.7rem', fontWeight: 700, padding: '5px 10px', borderRadius: '20px',
+            background: syncState === 'offline' ? '#fffbeb' : '#f0fdf4',
+            color: syncState === 'offline' ? '#d97706' : '#16a34a',
+            border: `1px solid ${syncState === 'offline' ? '#fde68a' : '#bbf7d0'}`
+          }}>
+            {syncState === 'offline'
+              ? <><CloudOff size={12} /> {countPending(entries)} da sincronizzare</>
+              : syncState === 'syncing'
+                ? <><CloudUpload size={12} /> Sincronizzo…</>
+                : <><CheckCircle2 size={12} /> Cloud OK</>}
+          </span>
+        )}
       </div>
 
       {/* Flash message */}

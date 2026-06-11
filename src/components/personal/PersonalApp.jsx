@@ -6,6 +6,7 @@ import EmpMyTodos from '../workpro/employee/EmpMyTodos'
 import EmpPersonalPlanning from '../workpro/employee/EmpPersonalPlanning'
 import EmpTeamDestinations from '../workpro/employee/EmpTeamDestinations'
 import EmpHoursEntry from '../workpro/employee/EmpHoursEntry'
+import EmpClockIn from '../workpro/employee/EmpClockIn'
 import EmpLeaveRequest from '../workpro/employee/EmpLeaveRequest'
 import EmpLeaveStatus from '../workpro/employee/EmpLeaveStatus'
 import EmpEquipment from '../workpro/employee/EmpEquipment'
@@ -27,6 +28,7 @@ import NotificationCenter from '../layout/NotificationCenter'
 
 const VIEW_TITLES = {
   home:         'noi.todos.it',
+  clockin:      'Timbratura',
   mytodos:      'My Todos',
   planning:     'Pianificazione personale',
   teams:        'Pianificazione squadre',
@@ -79,6 +81,7 @@ export default function PersonalApp({
     if (!employee) return null
     switch (view) {
       case 'home':         return <EmpHome employeeId={employee.id} onGo={setView} />
+      case 'clockin':      return <EmpClockIn employeeId={employee.id} employeeName={employee.name} />
       case 'mytodos':      return <EmpMyTodos employeeId={employee.id} />
       case 'planning':     return <EmpPersonalPlanning employeeId={employee.id} />
       case 'teams':        return <EmpTeamDestinations employeeId={employee.id} />
