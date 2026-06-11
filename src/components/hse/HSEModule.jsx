@@ -4,7 +4,7 @@ import {
   CheckCircle2, Clock, XCircle, Plus, ChevronRight, Users,
   Package, Wrench, Activity
 } from 'lucide-react'
-import { ExportButton, useSharedState } from '../shared/ui'
+import { ExportButton, useSharedState, SignaturePad } from '../shared/ui'
 
 // ============================================================================
 // HSEModule — Health, Safety & Environment
@@ -100,6 +100,19 @@ export default function HSEModule({ view = 'dashboard' }) {
   const [incidents, setIncidents] = useSharedState(LS_INCIDENTS, INITIAL_INCIDENTS)
   const [showIncidentForm, setShowIncidentForm] = useState(false)
   const [incidentForm, setIncidentForm] = useState({ date: '', type: 'Near Miss', severity: 'Bassa', location: '', description: '', employee_involved: '', corrective_action: '' })
+  // Verbale di consegna DPI con firma touch
+  const [verbale, setVerbale] = useState(null)        // assegnazione DPI aperta nel verbale
+  const [verbaleSig, setVerbaleSig] = useState(null)  // firma corrente (dataURL)
+
+  const signVerbale = () => {
+    if (!verbaleSig) { alert('Manca la firma del dipendente.'); return }
+    setDpiAssignments(dpiAssignments.map(da => da.id === verbale.id
+      ? { ...da, signature: verbaleSig, signed_at: new Date().toISOString().slice(0, 10), signed_by: getEmpName(verbale.employee_id) }
+      : da
+    ))
+    setVerbale(null)
+    setVerbaleSig(null)
+  }
 
   const stats = useMemo(() => {
     const medScaduti = EMPLOYEES.filter(e => getExpiryStatus(e.medical_expiry) === 'scaduto').length
@@ -291,7 +304,7 @@ export default function HSEModule({ view = 'dashboard' }) {
           <div style={{ background: 'var(--bg-card, white)', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '12px', overflow: 'hidden', marginBottom: '24px' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead><tr style={{ background: 'var(--bg-app, #f8fafc)' }}>
-                {['Dipendente', 'DPI', 'Categoria', 'Assegnato il', 'Scadenza', 'Stato'].map(h => (
+                {['Dipendente', 'DPI', 'Categoria', 'Assegnato il', 'Scadenza', 'Stato', 'Verbale'].map(h => (
                   <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', letterSpacing: '0.04em', borderBottom: '1px solid var(--border-color, #e2e8f0)' }}>{h}</th>
                 ))}
               </tr></thead>
@@ -310,12 +323,72 @@ export default function HSEModule({ view = 'dashboard' }) {
                       <td style={{ padding: '11px 14px' }}>
                         <span style={{ padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 600, background: sCfg.bg, color: sCfg.color }}>{sCfg.label}</span>
                       </td>
+                      <td style={{ padding: '11px 14px' }}>
+                        {da.signature ? (
+                          <button onClick={() => { setVerbale(da); setVerbaleSig(null) }}
+                            style={{ padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 700, background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', cursor: 'pointer' }}>
+                            ✓ Firmato {da.signed_at}
+                          </button>
+                        ) : (
+                          <button onClick={() => { setVerbale(da); setVerbaleSig(null) }}
+                            style={{ padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 700, background: '#fffbeb', color: '#d97706', border: '1px solid #fde68a', cursor: 'pointer' }}>
+                            ✍️ Firma verbale
+                          </button>
+                        )}
+                      </td>
                     </tr>
                   )
                 })}
               </tbody>
             </table>
           </div>
+
+          {/* VERBALE DI CONSEGNA DPI */}
+          {verbale && (() => {
+            const dpi = getDpiInfo(verbale.dpi_id)
+            const empName = getEmpName(verbale.employee_id)
+            return (
+              <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+                <div style={{ background: 'white', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '520px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+                  <h2 style={{ margin: '0 0 4px', fontSize: '1.05rem', fontWeight: 800 }}>📋 Verbale di consegna DPI</h2>
+                  <p style={{ margin: '0 0 14px', fontSize: '0.72rem', color: '#64748b' }}>Ai sensi degli artt. 18 e 77 del D.Lgs. 81/08</p>
+
+                  <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '12px 14px', fontSize: '0.8rem', marginBottom: '14px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0' }}><span style={{ color: '#64748b' }}>Dipendente</span><strong>{empName}</strong></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0' }}><span style={{ color: '#64748b' }}>DPI consegnato</span><strong>{dpi?.type}</strong></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0' }}><span style={{ color: '#64748b' }}>Norma</span><strong>{dpi?.norm}</strong></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0' }}><span style={{ color: '#64748b' }}>Data consegna</span><strong>{verbale.assigned_at}</strong></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0' }}><span style={{ color: '#64748b' }}>Scadenza</span><strong>{verbale.expiry}</strong></div>
+                  </div>
+
+                  <p style={{ fontSize: '0.74rem', color: '#475569', lineHeight: 1.5, marginBottom: '14px' }}>
+                    Il/La sottoscritto/a dichiara di aver ricevuto il DPI sopra indicato, di essere stato/a
+                    informato/a e formato/a sul suo corretto utilizzo, di impegnarsi a utilizzarlo conformemente
+                    alle istruzioni, ad averne cura e a segnalarne tempestivamente difetti o malfunzionamenti.
+                  </p>
+
+                  {verbale.signature ? (
+                    <>
+                      <h4 style={{ margin: '0 0 6px', fontSize: '0.78rem', fontWeight: 800 }}>Firmato da {verbale.signed_by} il {verbale.signed_at}</h4>
+                      <img src={verbale.signature} alt="firma" style={{ maxWidth: '240px', background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px' }} />
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '14px' }}>
+                        <button onClick={() => setVerbale(null)} style={{ padding: '9px 18px', border: '1px solid #e2e8f0', borderRadius: '8px', background: 'white', cursor: 'pointer', fontWeight: 600 }}>Chiudi</button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <h4 style={{ margin: '0 0 6px', fontSize: '0.78rem', fontWeight: 800 }}>Firma del dipendente</h4>
+                      <SignaturePad onChange={setVerbaleSig} height={130} />
+                      <div style={{ display: 'flex', gap: '10px', marginTop: '14px', justifyContent: 'flex-end' }}>
+                        <button onClick={() => { setVerbale(null); setVerbaleSig(null) }} style={{ padding: '9px 18px', border: '1px solid #e2e8f0', borderRadius: '8px', background: 'white', cursor: 'pointer', fontWeight: 600 }}>Annulla</button>
+                        <button onClick={signVerbale} style={{ padding: '9px 18px', border: 'none', borderRadius: '8px', background: 'var(--primary, #A82238)', color: 'white', cursor: 'pointer', fontWeight: 700 }}>Firma e archivia</button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            )
+          })()}
 
           <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary, #1e293b)', marginBottom: '12px' }}>Catalogo DPI aziendali</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '10px' }}>
