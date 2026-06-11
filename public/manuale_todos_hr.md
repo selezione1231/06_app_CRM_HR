@@ -1,6 +1,6 @@
-# 📖 Manuale Operativo & Visuale: Todos Select Suite
+# 📖 Manuale Operativo & Visuale: Todos Hub
 
-Benvenuto nella guida visuale e operativa completa di **Todos Select Suite**, la piattaforma integrata all'avanguardia per la gestione strategica delle Risorse Umane (HRIS) e l'acquisizione dei talenti (ATS) firmata **Todos.it** (*born to be wireless*).
+Benvenuto nella guida visuale e operativa completa di **Todos Hub**, la piattaforma integrata all'avanguardia per la gestione strategica delle Risorse Umane (HRIS) e l'acquisizione dei talenti (ATS) firmata **Todos.it** (*born to be wireless*).
 
 Questo manuale è progettato per illustrare visivamente tutti gli 8 moduli avanzati e le potenzialità della piattaforma.
 
@@ -126,8 +126,8 @@ Se riscontri errori di database come `invalid input syntax for type uuid` o tabe
 Copia il seguente script SQL ed eseguilo integralmente nel pannello **SQL Editor** del tuo database Supabase:
 
 ```sql
--- 1. TABELLA POSIZIONI (06app_CRM_HR_jobs)
-CREATE TABLE IF NOT EXISTS "06app_CRM_HR_jobs" (
+-- 1. TABELLA POSIZIONI (06app_Noi_jobs)
+CREATE TABLE IF NOT EXISTS "06app_Noi_jobs" (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   title TEXT NOT NULL,
   department TEXT NOT NULL,
@@ -137,10 +137,10 @@ CREATE TABLE IF NOT EXISTS "06app_CRM_HR_jobs" (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
--- 2. TABELLA CANDIDATI (06app_CRM_HR_candidates)
-CREATE TABLE IF NOT EXISTS "06app_CRM_HR_candidates" (
+-- 2. TABELLA CANDIDATI (06app_Noi_candidates)
+CREATE TABLE IF NOT EXISTS "06app_Noi_candidates" (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  job_id UUID REFERENCES "06app_CRM_HR_jobs"(id) ON DELETE CASCADE,
+  job_id UUID REFERENCES "06app_Noi_jobs"(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   email TEXT,
   phone TEXT,
@@ -159,19 +159,19 @@ CREATE TABLE IF NOT EXISTS "06app_CRM_HR_candidates" (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
--- 3. TABELLA NOTE CANDIDATO (06app_CRM_HR_notes)
-CREATE TABLE IF NOT EXISTS "06app_CRM_HR_notes" (
+-- 3. TABELLA NOTE CANDIDATO (06app_Noi_notes)
+CREATE TABLE IF NOT EXISTS "06app_Noi_notes" (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  candidate_id UUID REFERENCES "06app_CRM_HR_candidates"(id) ON DELETE CASCADE,
+  candidate_id UUID REFERENCES "06app_Noi_candidates"(id) ON DELETE CASCADE,
   author_email TEXT NOT NULL,
   content TEXT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
--- 4. TABELLA APPUNTAMENTI (06app_CRM_HR_appointments)
-CREATE TABLE IF NOT EXISTS "06app_CRM_HR_appointments" (
+-- 4. TABELLA APPUNTAMENTI (06app_Noi_appointments)
+CREATE TABLE IF NOT EXISTS "06app_Noi_appointments" (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  candidate_id UUID REFERENCES "06app_CRM_HR_candidates"(id) ON DELETE CASCADE,
+  candidate_id UUID REFERENCES "06app_Noi_candidates"(id) ON DELETE CASCADE,
   candidate_name TEXT NOT NULL,
   job_title TEXT NOT NULL,
   interviewer_email TEXT NOT NULL,
@@ -182,8 +182,8 @@ CREATE TABLE IF NOT EXISTS "06app_CRM_HR_appointments" (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
--- 5. TABELLA TEMPLATE POSIZIONI (06app_CRM_HR_job_templates)
-CREATE TABLE IF NOT EXISTS "06app_CRM_HR_job_templates" (
+-- 5. TABELLA TEMPLATE POSIZIONI (06app_Noi_job_templates)
+CREATE TABLE IF NOT EXISTS "06app_Noi_job_templates" (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   title TEXT NOT NULL,
   department TEXT NOT NULL,
@@ -192,10 +192,10 @@ CREATE TABLE IF NOT EXISTS "06app_CRM_HR_job_templates" (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
--- 6. TABELLA DIPENDENTI (06app_CRM_HR_employees)
-CREATE TABLE IF NOT EXISTS "06app_CRM_HR_employees" (
+-- 6. TABELLA DIPENDENTI (06app_Noi_employees)
+CREATE TABLE IF NOT EXISTS "06app_Noi_employees" (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  candidate_id UUID REFERENCES "06app_CRM_HR_candidates"(id) ON DELETE SET NULL,
+  candidate_id UUID REFERENCES "06app_Noi_candidates"(id) ON DELETE SET NULL,
   name TEXT NOT NULL,
   email TEXT NOT NULL UNIQUE,
   phone TEXT,
@@ -212,10 +212,10 @@ CREATE TABLE IF NOT EXISTS "06app_CRM_HR_employees" (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 7. TABELLA FERIE/ASSENZE (06app_CRM_HR_leaves)
-CREATE TABLE IF NOT EXISTS "06app_CRM_HR_leaves" (
+-- 7. TABELLA FERIE/ASSENZE (06app_Noi_leaves)
+CREATE TABLE IF NOT EXISTS "06app_Noi_leaves" (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  employee_id UUID REFERENCES "06app_CRM_HR_employees"(id) ON DELETE CASCADE,
+  employee_id UUID REFERENCES "06app_Noi_employees"(id) ON DELETE CASCADE,
   employee_name TEXT NOT NULL,
   type TEXT NOT NULL,
   start_date DATE NOT NULL,
@@ -226,10 +226,10 @@ CREATE TABLE IF NOT EXISTS "06app_CRM_HR_leaves" (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 8. TABELLA CHECKLISTS (06app_CRM_HR_checklists)
-CREATE TABLE IF NOT EXISTS "06app_CRM_HR_checklists" (
+-- 8. TABELLA CHECKLISTS (06app_Noi_checklists)
+CREATE TABLE IF NOT EXISTS "06app_Noi_checklists" (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  employee_id UUID REFERENCES "06app_CRM_HR_employees"(id) ON DELETE CASCADE,
+  employee_id UUID REFERENCES "06app_Noi_employees"(id) ON DELETE CASCADE,
   employee_name TEXT NOT NULL,
   type TEXT NOT NULL,
   task_name TEXT NOT NULL,
@@ -239,10 +239,10 @@ CREATE TABLE IF NOT EXISTS "06app_CRM_HR_checklists" (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 9. TABELLA PERFORMANCE (06app_CRM_HR_performances)
-CREATE TABLE IF NOT EXISTS "06app_CRM_HR_performances" (
+-- 9. TABELLA PERFORMANCE (06app_Noi_performances)
+CREATE TABLE IF NOT EXISTS "06app_Noi_performances" (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  employee_id UUID REFERENCES "06app_CRM_HR_employees"(id) ON DELETE CASCADE,
+  employee_id UUID REFERENCES "06app_Noi_employees"(id) ON DELETE CASCADE,
   employee_name TEXT NOT NULL,
   review_period TEXT NOT NULL,
   self_rating JSONB NOT NULL,
@@ -252,10 +252,10 @@ CREATE TABLE IF NOT EXISTS "06app_CRM_HR_performances" (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 10. TABELLA NOTE SPESE (06app_CRM_HR_expenses)
-CREATE TABLE IF NOT EXISTS "06app_CRM_HR_expenses" (
+-- 10. TABELLA NOTE SPESE (06app_Noi_expenses)
+CREATE TABLE IF NOT EXISTS "06app_Noi_expenses" (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  employee_id UUID REFERENCES "06app_CRM_HR_employees"(id) ON DELETE CASCADE,
+  employee_id UUID REFERENCES "06app_Noi_employees"(id) ON DELETE CASCADE,
   employee_name TEXT NOT NULL,
   expense_date DATE NOT NULL DEFAULT CURRENT_DATE,
   merchant TEXT NOT NULL,
@@ -267,10 +267,10 @@ CREATE TABLE IF NOT EXISTS "06app_CRM_HR_expenses" (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 11. TABELLA TURNI (06app_CRM_HR_shifts)
-CREATE TABLE IF NOT EXISTS "06app_CRM_HR_shifts" (
+-- 11. TABELLA TURNI (06app_Noi_shifts)
+CREATE TABLE IF NOT EXISTS "06app_Noi_shifts" (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  employee_id UUID REFERENCES "06app_CRM_HR_employees"(id) ON DELETE CASCADE,
+  employee_id UUID REFERENCES "06app_Noi_employees"(id) ON DELETE CASCADE,
   employee_name TEXT NOT NULL,
   shift_date DATE NOT NULL,
   start_time TIME NOT NULL,

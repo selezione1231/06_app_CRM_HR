@@ -838,33 +838,33 @@ export default function App() {
   const loadSupabaseData = async () => {
     try {
       const { data: dbJobs, error: errJobs } = await supabase
-        .from('06app_CRM_HR_jobs')
+        .from('06app_Noi_jobs')
         .select('*')
         .order('created_at', { ascending: false })
       if (errJobs) throw errJobs
       setJobs(dbJobs || [])
 
       const { data: dbCandidates, error: errCandidates } = await supabase
-        .from('06app_CRM_HR_candidates')
+        .from('06app_Noi_candidates')
         .select('*')
       if (errCandidates) throw errCandidates
       setCandidates(dbCandidates || [])
 
       const { data: dbNotes, error: errNotes } = await supabase
-        .from('06app_CRM_HR_notes')
+        .from('06app_Noi_notes')
         .select('*')
       if (errNotes) throw errNotes
       setNotes(dbNotes || [])
 
       const { data: dbAppts, error: errAppts } = await supabase
-        .from('06app_CRM_HR_appointments')
+        .from('06app_Noi_appointments')
         .select('*')
         .order('date_time', { ascending: true })
       if (errAppts) throw errAppts
       setAppointments(dbAppts || [])
 
       const { data: dbTemplates, error: errTemplates } = await supabase
-        .from('06app_CRM_HR_job_templates')
+        .from('06app_Noi_job_templates')
         .select('*')
         .order('created_at', { ascending: false })
       if (errTemplates) throw errTemplates
@@ -873,102 +873,102 @@ export default function App() {
       // Carica Dipendenti con gestione errore soft
       try {
         const { data: dbEmployees, error: errEmployees } = await supabase
-          .from('06app_CRM_HR_employees')
+          .from('06app_Noi_employees')
           .select('*')
           .order('name', { ascending: true })
         if (errEmployees) throw errEmployees
         setEmployees(dbEmployees || [])
       } catch (empErr) {
-        console.warn("Tabella '06app_CRM_HR_employees' non trovata in Supabase. Esegui la migrazione SQL.", empErr)
+        console.warn("Tabella '06app_Noi_employees' non trovata in Supabase. Esegui la migrazione SQL.", empErr)
         setEmployees([])
       }
 
       // Carica Ferie/Assenze con gestione errore soft
       try {
         const { data: dbLeaves, error: errLeaves } = await supabase
-          .from('06app_CRM_HR_leaves')
+          .from('06app_Noi_leaves')
           .select('*')
           .order('created_at', { ascending: false })
         if (errLeaves) throw errLeaves
         setLeaves(dbLeaves || [])
       } catch (leaveErr) {
-        console.warn("Tabella '06app_CRM_HR_leaves' non trovata in Supabase. Esegui la migrazione SQL.", leaveErr)
+        console.warn("Tabella '06app_Noi_leaves' non trovata in Supabase. Esegui la migrazione SQL.", leaveErr)
         setLeaves([])
       }
 
       // Carica Checklist con gestione errore soft
       try {
         const { data: dbChecklists, error: errChecklists } = await supabase
-          .from('06app_CRM_HR_checklists')
+          .from('06app_Noi_checklists')
           .select('*')
           .order('created_at', { ascending: true })
         if (errChecklists) throw errChecklists
         setChecklists(dbChecklists || [])
       } catch (chkErr) {
-        console.warn("Tabella '06app_CRM_HR_checklists' non trovata in Supabase. Esegui la migrazione SQL.", chkErr)
+        console.warn("Tabella '06app_Noi_checklists' non trovata in Supabase. Esegui la migrazione SQL.", chkErr)
         setChecklists([])
       }
 
       // Carica Performance con gestione errore soft
       try {
         const { data: dbPerformances, error: errPerformances } = await supabase
-          .from('06app_CRM_HR_performances')
+          .from('06app_Noi_performances')
           .select('*')
           .order('created_at', { ascending: false })
         if (errPerformances) throw errPerformances
         setPerformances(dbPerformances || [])
       } catch (perfErr) {
-        console.warn("Tabella '06app_CRM_HR_performances' non trovata in Supabase. Esegui la migrazione SQL.", perfErr)
+        console.warn("Tabella '06app_Noi_performances' non trovata in Supabase. Esegui la migrazione SQL.", perfErr)
         setPerformances([])
       }
 
       // Carica Note Spese con gestione errore soft
       try {
         const { data: dbExpenses, error: errExpenses } = await supabase
-          .from('06app_CRM_HR_expenses')
+          .from('06app_Noi_expenses')
           .select('*')
           .order('expense_date', { ascending: false })
         if (errExpenses) throw errExpenses
         setExpenses(dbExpenses || [])
       } catch (expErr) {
-        console.warn("Tabella '06app_CRM_HR_expenses' non trovata in Supabase. Esegui la migrazione SQL.", expErr)
+        console.warn("Tabella '06app_Noi_expenses' non trovata in Supabase. Esegui la migrazione SQL.", expErr)
         setExpenses([])
       }
 
       // Carica Turni con gestione errore soft
       try {
         const { data: dbShifts, error: errShifts } = await supabase
-          .from('06app_CRM_HR_shifts')
+          .from('06app_Noi_shifts')
           .select('*')
           .order('shift_date', { ascending: true })
         if (errShifts) throw errShifts
         setShifts(dbShifts || [])
       } catch (shiftErr) {
-        console.warn("Tabella '06app_CRM_HR_shifts' non trovata in Supabase. Esegui la migrazione SQL.", shiftErr)
+        console.warn("Tabella '06app_Noi_shifts' non trovata in Supabase. Esegui la migrazione SQL.", shiftErr)
         setShifts([])
       }
 
       // Carica Veicoli con gestione errore soft
       try {
         const { data: dbVehicles, error: errVehicles } = await supabase
-          .from('06app_CRM_HR_vehicles')
+          .from('06app_Noi_vehicles')
           .select('*')
         if (errVehicles) throw errVehicles
         setVehicles(dbVehicles || [])
       } catch (vehErr) {
-        console.warn("Tabella '06app_CRM_HR_vehicles' non trovata in Supabase. Esegui la migrazione SQL.", vehErr)
+        console.warn("Tabella '06app_Noi_vehicles' non trovata in Supabase. Esegui la migrazione SQL.", vehErr)
         setVehicles([])
       }
 
       // Carica Transazioni Carburante con gestione errore soft
       try {
         const { data: dbTx, error: errTx } = await supabase
-          .from('06app_CRM_HR_fuel_transactions')
+          .from('06app_Noi_fuel_transactions')
           .select('*')
         if (errTx) throw errTx
         setFuelTransactions(dbTx || [])
       } catch (txErr) {
-        console.warn("Tabella '06app_CRM_HR_fuel_transactions' non trovata in Supabase. Esegui la migrazione SQL.", txErr)
+        console.warn("Tabella '06app_Noi_fuel_transactions' non trovata in Supabase. Esegui la migrazione SQL.", txErr)
         setFuelTransactions([])
       }
     } catch (e) {
@@ -1165,13 +1165,13 @@ export default function App() {
       try {
         if (shiftData.id) {
           const { error } = await supabase
-            .from('06app_CRM_HR_shifts')
+            .from('06app_Noi_shifts')
             .update(shiftData)
             .eq('id', shiftData.id);
           if (error) throw error;
         } else {
           const { error } = await supabase
-            .from('06app_CRM_HR_shifts')
+            .from('06app_Noi_shifts')
             .insert([shiftData]);
           if (error) throw error;
         }
@@ -1191,7 +1191,7 @@ export default function App() {
     } else {
       try {
         const { error } = await supabase
-          .from('06app_CRM_HR_shifts')
+          .from('06app_Noi_shifts')
           .delete()
           .eq('id', shiftId);
         if (error) throw error;
@@ -1227,7 +1227,7 @@ export default function App() {
 
       // 1. Check if already seeded to avoid duplicates
       const { data: currentEmp, error: errEmpCheck } = await supabase
-        .from('06app_CRM_HR_employees')
+        .from('06app_Noi_employees')
         .select('id')
         .limit(1);
       
@@ -1245,7 +1245,7 @@ export default function App() {
 
       // Insert default employees
       const { error: errEmpInsert } = await supabase
-        .from('06app_CRM_HR_employees')
+        .from('06app_Noi_employees')
         .insert(seedEmployees);
       
       if (errEmpInsert) throw errEmpInsert;
@@ -1256,7 +1256,7 @@ export default function App() {
         employee_id: mapEmpId(rest.employee_id)
       }));
       const { error: errLeaveInsert } = await supabase
-        .from('06app_CRM_HR_leaves')
+        .from('06app_Noi_leaves')
         .insert(seedLeaves);
       if (errLeaveInsert) throw errLeaveInsert;
       
@@ -1266,7 +1266,7 @@ export default function App() {
         employee_id: mapEmpId(rest.employee_id)
       }));
       const { error: errCheckInsert } = await supabase
-        .from('06app_CRM_HR_checklists')
+        .from('06app_Noi_checklists')
         .insert(seedChecklists);
       if (errCheckInsert) throw errCheckInsert;
 
@@ -1276,7 +1276,7 @@ export default function App() {
         employee_id: mapEmpId(rest.employee_id)
       }));
       const { error: errPerfInsert } = await supabase
-        .from('06app_CRM_HR_performances')
+        .from('06app_Noi_performances')
         .insert(seedPerformances);
       if (errPerfInsert) throw errPerfInsert;
 
@@ -1286,7 +1286,7 @@ export default function App() {
         employee_id: mapEmpId(rest.employee_id)
       }));
       const { error: errExpInsert } = await supabase
-        .from('06app_CRM_HR_expenses')
+        .from('06app_Noi_expenses')
         .insert(seedExpenses);
       if (errExpInsert) throw errExpInsert;
 
@@ -1297,7 +1297,7 @@ export default function App() {
         employee_id: mapEmpId(rest.employee_id)
       }));
       const { error: errShiftInsert } = await supabase
-        .from('06app_CRM_HR_shifts')
+        .from('06app_Noi_shifts')
         .insert(seedShifts);
       if (errShiftInsert) throw errShiftInsert;
 
@@ -1362,7 +1362,7 @@ export default function App() {
         try {
           if (jobData.id) {
             const { error } = await supabase
-              .from('06app_CRM_HR_job_templates')
+              .from('06app_Noi_job_templates')
               .update({
                 title: jobData.title,
                 department: jobData.department,
@@ -1373,7 +1373,7 @@ export default function App() {
             if (error) throw error
           } else {
             const { error } = await supabase
-              .from('06app_CRM_HR_job_templates')
+              .from('06app_Noi_job_templates')
               .insert([{
                 title: jobData.title,
                 department: jobData.department,
@@ -1411,7 +1411,7 @@ export default function App() {
         try {
           if (jobData.id) {
             const { data, error } = await supabase
-              .from('06app_CRM_HR_jobs')
+              .from('06app_Noi_jobs')
               .update({
                 title: jobData.title,
                 department: jobData.department,
@@ -1430,7 +1430,7 @@ export default function App() {
             }
           } else {
             const { error } = await supabase
-              .from('06app_CRM_HR_jobs')
+              .from('06app_Noi_jobs')
               .insert([{
                 title: jobData.title,
                 department: jobData.department,
@@ -1463,7 +1463,7 @@ export default function App() {
     } else {
       try {
         const { error } = await supabase
-          .from('06app_CRM_HR_jobs')
+          .from('06app_Noi_jobs')
           .delete()
           .eq('id', jobId)
         if (error) throw error
@@ -1483,7 +1483,7 @@ export default function App() {
     } else {
       try {
         const { error } = await supabase
-          .from('06app_CRM_HR_job_templates')
+          .from('06app_Noi_job_templates')
           .delete()
           .eq('id', templateId)
         if (error) throw error
@@ -1524,7 +1524,7 @@ export default function App() {
     } else {
       try {
         const { data, error } = await supabase
-          .from('06app_CRM_HR_candidates')
+          .from('06app_Noi_candidates')
           .insert([candidateData])
           .select()
         if (error) throw error
@@ -1550,7 +1550,7 @@ export default function App() {
     } else {
       try {
         const { error } = await supabase
-          .from('06app_CRM_HR_candidates')
+          .from('06app_Noi_candidates')
           .update({ stage: newStage })
           .eq('id', candidateId)
         if (error) throw error
@@ -1581,7 +1581,7 @@ export default function App() {
     } else {
       try {
         const { error } = await supabase
-          .from('06app_CRM_HR_candidates')
+          .from('06app_Noi_candidates')
           .delete()
           .eq('id', candidateId)
         if (error) throw error
@@ -1604,7 +1604,7 @@ export default function App() {
     } else {
       try {
         const { data, error } = await supabase
-          .from('06app_CRM_HR_appointments')
+          .from('06app_Noi_appointments')
           .insert([apptData])
           .select()
         if (error) throw error
@@ -1624,7 +1624,7 @@ export default function App() {
     } else {
       try {
         const { error } = await supabase
-          .from('06app_CRM_HR_appointments')
+          .from('06app_Noi_appointments')
           .delete()
           .eq('id', apptId)
         if (error) throw error
@@ -1653,7 +1653,7 @@ export default function App() {
     } else {
       try {
         const { error } = await supabase
-          .from('06app_CRM_HR_notes')
+          .from('06app_Noi_notes')
           .insert([{
             candidate_id: candidateId,
             author_email: authorEmail,
@@ -1705,7 +1705,7 @@ export default function App() {
     } else {
       try {
         const { data, error } = await supabase
-          .from('06app_CRM_HR_employees')
+          .from('06app_Noi_employees')
           .insert([empData])
           .select()
         if (error) throw error
@@ -1721,7 +1721,7 @@ export default function App() {
           is_completed: false
         }))
         const { error: errChecklistInit } = await supabase
-          .from('06app_CRM_HR_checklists')
+          .from('06app_Noi_checklists')
           .insert(defaultTasksDb)
         if (errChecklistInit) {
           console.error("Errore nell'autoinizializzazione della checklist:", errChecklistInit)
@@ -1743,7 +1743,7 @@ export default function App() {
     } else {
       try {
         const { error } = await supabase
-          .from('06app_CRM_HR_employees')
+          .from('06app_Noi_employees')
           .update(updatedData)
           .eq('id', empId)
         if (error) throw error
@@ -1774,7 +1774,7 @@ export default function App() {
     } else {
       try {
         const { error } = await supabase
-          .from('06app_CRM_HR_employees')
+          .from('06app_Noi_employees')
           .delete()
           .eq('id', empId)
         if (error) throw error
@@ -1798,7 +1798,7 @@ export default function App() {
     } else {
       try {
         const { data, error } = await supabase
-          .from('06app_CRM_HR_leaves')
+          .from('06app_Noi_leaves')
           .insert([leaveData])
           .select()
         if (error) throw error
@@ -1818,7 +1818,7 @@ export default function App() {
     } else {
       try {
         const { error } = await supabase
-          .from('06app_CRM_HR_leaves')
+          .from('06app_Noi_leaves')
           .update({ status: newStatus })
           .eq('id', leaveId)
         if (error) throw error
@@ -1837,7 +1837,7 @@ export default function App() {
     } else {
       try {
         const { error } = await supabase
-          .from('06app_CRM_HR_leaves')
+          .from('06app_Noi_leaves')
           .delete()
           .eq('id', leaveId)
         if (error) throw error
@@ -1866,7 +1866,7 @@ export default function App() {
     } else {
       try {
         const { error } = await supabase
-          .from('06app_CRM_HR_checklists')
+          .from('06app_Noi_checklists')
           .update({
             is_completed: isCompleted,
             completed_at: isCompleted ? new Date().toISOString() : null
@@ -1894,7 +1894,7 @@ export default function App() {
     } else {
       try {
         const { error } = await supabase
-          .from('06app_CRM_HR_checklists')
+          .from('06app_Noi_checklists')
           .insert([taskData])
         if (error) throw error
         await loadSupabaseData()
@@ -1932,7 +1932,7 @@ export default function App() {
     } else {
       try {
         const { data: existing, error: findError } = await supabase
-          .from('06app_CRM_HR_performances')
+          .from('06app_Noi_performances')
           .select('*')
           .eq('employee_id', reviewData.employee_id)
           .eq('review_period', reviewData.review_period)
@@ -1942,7 +1942,7 @@ export default function App() {
 
         if (existing) {
           const { error: updateError } = await supabase
-            .from('06app_CRM_HR_performances')
+            .from('06app_Noi_performances')
             .update({
               self_rating: reviewData.self_rating,
               manager_rating: reviewData.manager_rating,
@@ -1952,7 +1952,7 @@ export default function App() {
           if (updateError) throw updateError
         } else {
           const { error: insertError } = await supabase
-            .from('06app_CRM_HR_performances')
+            .from('06app_Noi_performances')
             .insert([{
               ...reviewData,
               okrs: []
@@ -1991,7 +1991,7 @@ export default function App() {
         }
 
         const { error } = await supabase
-          .from('06app_CRM_HR_performances')
+          .from('06app_Noi_performances')
           .update({ okrs: updatedOkrs })
           .eq('id', activeReview.id)
         
@@ -2022,7 +2022,7 @@ export default function App() {
         const updatedOkrs = [...(activeReview.okrs || []), { title, progress: 0 }]
 
         const { error } = await supabase
-          .from('06app_CRM_HR_performances')
+          .from('06app_Noi_performances')
           .update({ okrs: updatedOkrs })
           .eq('id', activeReview.id)
         
@@ -2048,7 +2048,7 @@ export default function App() {
     } else {
       try {
         const { error } = await supabase
-          .from('06app_CRM_HR_expenses')
+          .from('06app_Noi_expenses')
           .insert([expenseData])
         if (error) throw error
         await loadSupabaseData()
@@ -2066,7 +2066,7 @@ export default function App() {
     } else {
       try {
         const { error } = await supabase
-          .from('06app_CRM_HR_expenses')
+          .from('06app_Noi_expenses')
           .update({ status: newStatus })
           .eq('id', expenseId)
         if (error) throw error
@@ -2085,7 +2085,7 @@ export default function App() {
     } else {
       try {
         const { error } = await supabase
-          .from('06app_CRM_HR_expenses')
+          .from('06app_Noi_expenses')
           .delete()
           .eq('id', expenseId)
         if (error) throw error
@@ -2139,7 +2139,7 @@ export default function App() {
     } else {
       try {
         const { error } = await supabase
-          .from('06app_CRM_HR_vehicles')
+          .from('06app_Noi_vehicles')
           .upsert([vehicleData])
         if (error) throw error
         await loadSupabaseData()
@@ -2157,7 +2157,7 @@ export default function App() {
     } else {
       try {
         const { error } = await supabase
-          .from('06app_CRM_HR_vehicles')
+          .from('06app_Noi_vehicles')
           .delete()
           .eq('id', id)
         if (error) throw error
@@ -2187,7 +2187,7 @@ export default function App() {
     } else {
       try {
         const { error } = await supabase
-          .from('06app_CRM_HR_fuel_transactions')
+          .from('06app_Noi_fuel_transactions')
           .insert(newTransactions);
         if (error) throw error;
         await loadSupabaseData();
@@ -2794,8 +2794,8 @@ export default function App() {
                       resize: 'vertical',
                       cursor: 'pointer'
                     }}
-                    value={`-- 1. TABELLA POSIZIONI (06app_CRM_HR_jobs)
-CREATE TABLE IF NOT EXISTS "06app_CRM_HR_jobs" (
+                    value={`-- 1. TABELLA POSIZIONI (06app_Noi_jobs)
+CREATE TABLE IF NOT EXISTS "06app_Noi_jobs" (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   title TEXT NOT NULL,
   department TEXT NOT NULL,
@@ -2805,10 +2805,10 @@ CREATE TABLE IF NOT EXISTS "06app_CRM_HR_jobs" (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
--- 2. TABELLA CANDIDATI (06app_CRM_HR_candidates)
-CREATE TABLE IF NOT EXISTS "06app_CRM_HR_candidates" (
+-- 2. TABELLA CANDIDATI (06app_Noi_candidates)
+CREATE TABLE IF NOT EXISTS "06app_Noi_candidates" (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  job_id UUID REFERENCES "06app_CRM_HR_jobs"(id) ON DELETE CASCADE,
+  job_id UUID REFERENCES "06app_Noi_jobs"(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   email TEXT,
   phone TEXT,
@@ -2827,19 +2827,19 @@ CREATE TABLE IF NOT EXISTS "06app_CRM_HR_candidates" (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
--- 3. TABELLA NOTE CANDIDATO (06app_CRM_HR_notes)
-CREATE TABLE IF NOT EXISTS "06app_CRM_HR_notes" (
+-- 3. TABELLA NOTE CANDIDATO (06app_Noi_notes)
+CREATE TABLE IF NOT EXISTS "06app_Noi_notes" (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  candidate_id UUID REFERENCES "06app_CRM_HR_candidates"(id) ON DELETE CASCADE,
+  candidate_id UUID REFERENCES "06app_Noi_candidates"(id) ON DELETE CASCADE,
   author_email TEXT NOT NULL,
   content TEXT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
--- 4. TABELLA APPUNTAMENTI (06app_CRM_HR_appointments)
-CREATE TABLE IF NOT EXISTS "06app_CRM_HR_appointments" (
+-- 4. TABELLA APPUNTAMENTI (06app_Noi_appointments)
+CREATE TABLE IF NOT EXISTS "06app_Noi_appointments" (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  candidate_id UUID REFERENCES "06app_CRM_HR_candidates"(id) ON DELETE CASCADE,
+  candidate_id UUID REFERENCES "06app_Noi_candidates"(id) ON DELETE CASCADE,
   candidate_name TEXT NOT NULL,
   job_title TEXT NOT NULL,
   interviewer_email TEXT NOT NULL,
@@ -2850,8 +2850,8 @@ CREATE TABLE IF NOT EXISTS "06app_CRM_HR_appointments" (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
--- 5. TABELLA TEMPLATE POSIZIONI (06app_CRM_HR_job_templates)
-CREATE TABLE IF NOT EXISTS "06app_CRM_HR_job_templates" (
+-- 5. TABELLA TEMPLATE POSIZIONI (06app_Noi_job_templates)
+CREATE TABLE IF NOT EXISTS "06app_Noi_job_templates" (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   title TEXT NOT NULL,
   department TEXT NOT NULL,
@@ -2860,10 +2860,10 @@ CREATE TABLE IF NOT EXISTS "06app_CRM_HR_job_templates" (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
--- 6. TABELLA DIPENDENTI (06app_CRM_HR_employees)
-CREATE TABLE IF NOT EXISTS "06app_CRM_HR_employees" (
+-- 6. TABELLA DIPENDENTI (06app_Noi_employees)
+CREATE TABLE IF NOT EXISTS "06app_Noi_employees" (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  candidate_id UUID REFERENCES "06app_CRM_HR_candidates"(id) ON DELETE SET NULL,
+  candidate_id UUID REFERENCES "06app_Noi_candidates"(id) ON DELETE SET NULL,
   name TEXT NOT NULL,
   email TEXT NOT NULL UNIQUE,
   phone TEXT,
@@ -2880,10 +2880,10 @@ CREATE TABLE IF NOT EXISTS "06app_CRM_HR_employees" (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 7. TABELLA FERIE/ASSENZE (06app_CRM_HR_leaves)
-CREATE TABLE IF NOT EXISTS "06app_CRM_HR_leaves" (
+-- 7. TABELLA FERIE/ASSENZE (06app_Noi_leaves)
+CREATE TABLE IF NOT EXISTS "06app_Noi_leaves" (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  employee_id UUID REFERENCES "06app_CRM_HR_employees"(id) ON DELETE CASCADE,
+  employee_id UUID REFERENCES "06app_Noi_employees"(id) ON DELETE CASCADE,
   employee_name TEXT NOT NULL,
   type TEXT NOT NULL,
   start_date DATE NOT NULL,
@@ -2894,10 +2894,10 @@ CREATE TABLE IF NOT EXISTS "06app_CRM_HR_leaves" (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 8. TABELLA CHECKLISTS (06app_CRM_HR_checklists)
-CREATE TABLE IF NOT EXISTS "06app_CRM_HR_checklists" (
+-- 8. TABELLA CHECKLISTS (06app_Noi_checklists)
+CREATE TABLE IF NOT EXISTS "06app_Noi_checklists" (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  employee_id UUID REFERENCES "06app_CRM_HR_employees"(id) ON DELETE CASCADE,
+  employee_id UUID REFERENCES "06app_Noi_employees"(id) ON DELETE CASCADE,
   employee_name TEXT NOT NULL,
   type TEXT NOT NULL,
   task_name TEXT NOT NULL,
@@ -2907,10 +2907,10 @@ CREATE TABLE IF NOT EXISTS "06app_CRM_HR_checklists" (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 9. TABELLA PERFORMANCE (06app_CRM_HR_performances)
-CREATE TABLE IF NOT EXISTS "06app_CRM_HR_performances" (
+-- 9. TABELLA PERFORMANCE (06app_Noi_performances)
+CREATE TABLE IF NOT EXISTS "06app_Noi_performances" (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  employee_id UUID REFERENCES "06app_CRM_HR_employees"(id) ON DELETE CASCADE,
+  employee_id UUID REFERENCES "06app_Noi_employees"(id) ON DELETE CASCADE,
   employee_name TEXT NOT NULL,
   review_period TEXT NOT NULL,
   self_rating JSONB NOT NULL,
@@ -2920,10 +2920,10 @@ CREATE TABLE IF NOT EXISTS "06app_CRM_HR_performances" (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 10. TABELLA NOTE SPESE (06app_CRM_HR_expenses)
-CREATE TABLE IF NOT EXISTS "06app_CRM_HR_expenses" (
+-- 10. TABELLA NOTE SPESE (06app_Noi_expenses)
+CREATE TABLE IF NOT EXISTS "06app_Noi_expenses" (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  employee_id UUID REFERENCES "06app_CRM_HR_employees"(id) ON DELETE CASCADE,
+  employee_id UUID REFERENCES "06app_Noi_employees"(id) ON DELETE CASCADE,
   employee_name TEXT NOT NULL,
   expense_date DATE NOT NULL DEFAULT CURRENT_DATE,
   merchant TEXT NOT NULL,
@@ -2935,10 +2935,10 @@ CREATE TABLE IF NOT EXISTS "06app_CRM_HR_expenses" (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 11. TABELLA TURNI (06app_CRM_HR_shifts)
-CREATE TABLE IF NOT EXISTS "06app_CRM_HR_shifts" (
+-- 11. TABELLA TURNI (06app_Noi_shifts)
+CREATE TABLE IF NOT EXISTS "06app_Noi_shifts" (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  employee_id UUID REFERENCES "06app_CRM_HR_employees"(id) ON DELETE CASCADE,
+  employee_id UUID REFERENCES "06app_Noi_employees"(id) ON DELETE CASCADE,
   employee_name TEXT NOT NULL,
   shift_date DATE NOT NULL,
   start_time TIME NOT NULL,
@@ -2948,8 +2948,8 @@ CREATE TABLE IF NOT EXISTS "06app_CRM_HR_shifts" (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 12. TABELLA VEICOLI (06app_CRM_HR_vehicles)
-CREATE TABLE IF NOT EXISTS "06app_CRM_HR_vehicles" (
+-- 12. TABELLA VEICOLI (06app_Noi_vehicles)
+CREATE TABLE IF NOT EXISTS "06app_Noi_vehicles" (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   plate TEXT NOT NULL UNIQUE,
   make_model TEXT NOT NULL,
@@ -2958,15 +2958,15 @@ CREATE TABLE IF NOT EXISTS "06app_CRM_HR_vehicles" (
   initial_odometer NUMERIC NOT NULL DEFAULT 0,
   current_odometer NUMERIC NOT NULL DEFAULT 0,
   fuel_card_code TEXT UNIQUE,
-  assigned_employee_id UUID REFERENCES "06app_CRM_HR_employees"(id) ON DELETE SET NULL,
+  assigned_employee_id UUID REFERENCES "06app_Noi_employees"(id) ON DELETE SET NULL,
   api_vehicle_id TEXT,
   consumption_limit NUMERIC DEFAULT 6.5,
   notes TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 13. TABELLA TRANSAZIONI CARBURANTE (06app_CRM_HR_fuel_transactions)
-CREATE TABLE IF NOT EXISTS "06app_CRM_HR_fuel_transactions" (
+-- 13. TABELLA TRANSAZIONI CARBURANTE (06app_Noi_fuel_transactions)
+CREATE TABLE IF NOT EXISTS "06app_Noi_fuel_transactions" (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   transaction_date DATE NOT NULL,
   fuel_card_code TEXT NOT NULL,
@@ -2974,8 +2974,8 @@ CREATE TABLE IF NOT EXISTS "06app_CRM_HR_fuel_transactions" (
   plate TEXT,
   liters NUMERIC NOT NULL,
   amount NUMERIC NOT NULL,
-  matched_employee_id UUID REFERENCES "06app_CRM_HR_employees"(id) ON DELETE SET NULL,
-  matched_vehicle_id UUID REFERENCES "06app_CRM_HR_vehicles"(id) ON DELETE SET NULL,
+  matched_employee_id UUID REFERENCES "06app_Noi_employees"(id) ON DELETE SET NULL,
+  matched_vehicle_id UUID REFERENCES "06app_Noi_vehicles"(id) ON DELETE SET NULL,
   satellite_km NUMERIC,
   effective_consumption NUMERIC,
   anomaly_status TEXT DEFAULT 'OK',
