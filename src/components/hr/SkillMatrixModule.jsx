@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { Award, AlertTriangle, Users2, Target, Info } from 'lucide-react'
 import {
   ModulePage, ModuleHeader, StatGrid, Card, TableWrap, thStyle, tdStyle,
-  Pill, useLocalState, selectStyle
+  Pill, useLocalState, selectStyle, ExportButton
 } from '../shared/ui'
 
 // ============================================================================
@@ -123,7 +123,14 @@ export default function SkillMatrixModule() {
         </div>
       </div>
 
-      <TableWrap>
+      <TableWrap
+        exportName="skill_matrix"
+        exportRows={visiblePeople.map(p => {
+          const row = { 'Dipendente': p.name, 'Reparto': p.dept }
+          for (const s of visibleSkills) row[s.name] = LEVELS[levelOf(p.id, s.id)].label
+          return row
+        })}
+      >
         <table>
           <thead>
             <tr>

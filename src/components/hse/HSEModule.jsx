@@ -4,6 +4,7 @@ import {
   CheckCircle2, Clock, XCircle, Plus, ChevronRight, Users,
   Package, Wrench, Activity
 } from 'lucide-react'
+import { ExportButton } from '../shared/ui'
 
 // ============================================================================
 // HSEModule — Health, Safety & Environment
@@ -233,7 +234,17 @@ export default function HSEModule({ view = 'dashboard' }) {
       {/* ===== CERTIFICAZIONI ===== */}
       {activeTab === 'certs' && (
         <div>
-          <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary, #1e293b)', marginBottom: '12px' }}>Certificazioni e abilitazioni del personale</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+            <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary, #1e293b)', margin: 0 }}>Certificazioni e abilitazioni del personale</h3>
+            <ExportButton
+              filename="certificazioni_personale"
+              rows={CERTIFICATIONS.map(c => ({
+                'Dipendente': getEmpName(c.employee_id), 'Certificazione': c.name,
+                'Conseguita il': c.achieved, 'Scadenza': c.expiry,
+                'Stato': STATUS_COLORS[getExpiryStatus(c.expiry)].label
+              }))}
+            />
+          </div>
           <div style={{ background: 'var(--bg-card, white)', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '12px', overflow: 'hidden' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead><tr style={{ background: 'var(--bg-app, #f8fafc)' }}>
@@ -270,7 +281,21 @@ export default function HSEModule({ view = 'dashboard' }) {
       {/* ===== DPI ===== */}
       {activeTab === 'dpi' && (
         <div>
-          <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary, #1e293b)', marginBottom: '12px' }}>Assegnazioni DPI</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+            <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary, #1e293b)', margin: 0 }}>Assegnazioni DPI</h3>
+            <ExportButton
+              filename="elenco_dpi"
+              rows={dpiAssignments.map(da => {
+                const dpi = getDpiInfo(da.dpi_id)
+                return {
+                  'Dipendente': getEmpName(da.employee_id), 'DPI': dpi?.type ?? da.dpi_id,
+                  'Categoria': dpi?.category ?? '', 'Norma': dpi?.norm ?? '',
+                  'Assegnato il': da.assigned_at, 'Scadenza': da.expiry,
+                  'Stato': STATUS_COLORS[getExpiryStatus(da.expiry)].label
+                }
+              })}
+            />
+          </div>
           <div style={{ background: 'var(--bg-card, white)', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '12px', overflow: 'hidden', marginBottom: '24px' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead><tr style={{ background: 'var(--bg-app, #f8fafc)' }}>
@@ -321,6 +346,18 @@ export default function HSEModule({ view = 'dashboard' }) {
       {/* ===== SORVEGLIANZA SANITARIA ===== */}
       {activeTab === 'medical' && (
         <div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '12px' }}>
+            <ExportButton
+              filename="sorveglianza_sanitaria"
+              rows={EMPLOYEES.map(emp => ({
+                'Dipendente': emp.name, 'Reparto': emp.dept,
+                'Scadenza visita medica': emp.medical_expiry,
+                'Stato visita': STATUS_COLORS[getExpiryStatus(emp.medical_expiry)].label,
+                'Scadenza corso sicurezza': emp.safety_expiry,
+                'Stato corso': STATUS_COLORS[getExpiryStatus(emp.safety_expiry)].label
+              }))}
+            />
+          </div>
           <div style={{ background: 'var(--bg-card, white)', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '12px', overflow: 'hidden' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead><tr style={{ background: 'var(--bg-app, #f8fafc)' }}>
@@ -366,7 +403,16 @@ export default function HSEModule({ view = 'dashboard' }) {
       {/* ===== INCIDENTI ===== */}
       {activeTab === 'incidents' && (
         <div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
+            <ExportButton
+              filename="registro_eventi_hse"
+              rows={incidents.map(inc => ({
+                'Data': inc.date, 'Tipo': inc.type, 'Severità': inc.severity,
+                'Luogo': inc.location, 'Dipendente coinvolto': inc.employee_involved,
+                'Descrizione': inc.description, 'Azione correttiva': inc.corrective_action,
+                'Stato': inc.status
+              }))}
+            />
             <button onClick={() => setShowIncidentForm(true)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 16px', background: 'var(--primary, #A82238)', color: 'white', border: 'none', borderRadius: '9px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}>
               <Plus size={15} /> Registra evento
             </button>

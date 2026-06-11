@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { X, Inbox } from 'lucide-react'
+import { X, Inbox, Download } from 'lucide-react'
 
 // ============================================================================
 // shared/ui — primitive UI riusabili per i moduli del Todos Hub
@@ -147,9 +147,50 @@ export function Card({ children, style }) {
   )
 }
 
-export function TableWrap({ children }) {
+// --- Export XLSX -----------------------------------------------------------------
+// Esporta un array di oggetti in un file .xlsx. Le chiavi degli oggetti
+// diventano le intestazioni di colonna. La libreria è caricata on-demand
+// (dynamic import) per non pesare sul bundle iniziale.
+export async function exportRowsToXlsx(rows, filename = 'export', sheetName = 'Dati') {
+  if (!rows || rows.length === 0) return
+  const XLSX = await import('xlsx')
+  const ws = XLSX.utils.json_to_sheet(rows)
+  ws['!cols'] = Object.keys(rows[0]).map(k => ({
+    wch: Math.min(45, Math.max(k.length, ...rows.map(r => String(r[k] ?? '').length)) + 2)
+  }))
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, sheetName.slice(0, 31))
+  XLSX.writeFile(wb, `${filename}.xlsx`)
+}
+
+export function ExportButton({ rows, filename, label = 'Esporta XLSX' }) {
+  const disabled = !rows || rows.length === 0
+  return (
+    <button
+      className="btn btn-secondary"
+      onClick={() => exportRowsToXlsx(rows, filename)}
+      disabled={disabled}
+      title={disabled ? 'Nessun dato da esportare' : `Scarica ${filename}.xlsx`}
+      style={{ padding: '5px 10px', fontSize: '0.75rem', opacity: disabled ? 0.5 : 1 }}
+    >
+      <Download size={13} /> {label}
+    </button>
+  )
+}
+
+// TableWrap: se riceve exportRows/exportName mostra la barra con il pulsante
+// "Esporta XLSX" sopra la tabella.
+export function TableWrap({ children, exportRows, exportName }) {
   return (
     <Card>
+      {exportRows && exportRows.length > 0 && (
+        <div style={{
+          display: 'flex', justifyContent: 'flex-end', padding: '8px 10px',
+          borderBottom: '1px solid var(--border-color)'
+        }}>
+          <ExportButton rows={exportRows} filename={exportName || 'export'} />
+        </div>
+      )}
       <div className="table-wrap">{children}</div>
     </Card>
   )

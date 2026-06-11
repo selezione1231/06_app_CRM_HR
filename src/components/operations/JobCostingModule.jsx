@@ -140,7 +140,19 @@ export default function JobCostingModule() {
       {jobs.length === 0 ? (
         <Card><EmptyState icon={Briefcase} title="Nessuna commessa" text="Aggiungi la prima commessa per monitorare i costi." /></Card>
       ) : (
-        <TableWrap>
+        <TableWrap
+          exportName="job_costing_commesse"
+          exportRows={jobs.map(j => ({
+            'Codice': j.code, 'Titolo': j.title, 'Cliente': j.client, 'Stato': j.status,
+            'Ricavi (EUR)': j.revenue,
+            'Budget manodopera (EUR)': j.budget.labor, 'Consuntivo manodopera (EUR)': j.actual.labor,
+            'Budget materiali (EUR)': j.budget.materials, 'Consuntivo materiali (EUR)': j.actual.materials,
+            'Budget mezzi (EUR)': j.budget.equipment, 'Consuntivo mezzi (EUR)': j.actual.equipment,
+            'Costi totali (EUR)': totCost(j.actual),
+            'Margine (EUR)': marginOf(j), 'Margine %': Number(marginPct(j).toFixed(1)),
+            'Ore budget': j.hours_budget, 'Ore consuntivate': j.hours_actual
+          }))}
+        >
           <table>
             <THead cols={['Commessa', 'Cliente', 'Stato', 'Ricavi', 'Costi', 'Margine', 'Avanzamento ore', '']} />
             <tbody>

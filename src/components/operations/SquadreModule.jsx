@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { Users2, Plus, HardHat, MapPin, Award, Pencil, Trash2, UserCircle2, CheckCircle2 } from 'lucide-react'
 import {
   ModulePage, ModuleHeader, StatGrid, Card, SectionTitle, Pill, EmptyState,
-  Modal, Field, inputStyle, selectStyle, useLocalState
+  Modal, Field, inputStyle, selectStyle, useLocalState, ExportButton
 } from '../shared/ui'
 
 // ============================================================================
@@ -97,9 +97,21 @@ export default function SquadreModule() {
         title="Squadre operative"
         subtitle="Composizione squadre, caposquadra, specializzazioni e cantiere assegnato."
         actions={
-          <button className="btn btn-primary" onClick={openCreate}>
-            <Plus size={15} /> Nuova squadra
-          </button>
+          <>
+            <ExportButton
+              filename="squadre_operative"
+              rows={squads.map(s => ({
+                'Squadra': s.name, 'Specializzazione': s.specialization,
+                'Caposquadra': opName(s.leader_id),
+                'Componenti': s.member_ids.map(opName).join(', '),
+                'N. componenti': 1 + s.member_ids.length,
+                'Cantiere': s.site, 'Stato': s.status
+              }))}
+            />
+            <button className="btn btn-primary" onClick={openCreate}>
+              <Plus size={15} /> Nuova squadra
+            </button>
+          </>
         }
       />
 

@@ -67,49 +67,7 @@ export default function Header({
       background: 'var(--bg-sidebar)',
       boxShadow: 'var(--shadow-sm)'
     }}>
-      {/* Brand Logo & Info */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <img 
-          src="/todos-logo.png" 
-          alt="Todos Logo" 
-          style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
-            objectFit: 'cover',
-            boxShadow: '0 2px 6px rgba(217, 4, 41, 0.15)'
-          }} 
-          onError={(e) => {
-            e.target.onerror = null;
-            e.target.src = '/todos-logo.jpg';
-          }}
-        />
-        <div>
-          <span style={{
-            fontFamily: 'var(--font-display)',
-            fontWeight: 800,
-            fontSize: '1.1rem',
-            letterSpacing: '-0.02em',
-            display: 'block',
-            lineHeight: '1.1'
-          }}>
-            Todos Hub
-          </span>
-          <span style={{
-            fontSize: '0.62rem',
-            color: 'var(--text-muted)',
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            display: 'block',
-            marginTop: '1px'
-          }}>
-            born to be wireless
-          </span>
-        </div>
-      </div>
-
-      {/* Center Database Status Indicator */}
+      {/* Database Status Indicator (il brand è già nella sidebar) */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         {isDemo ? (
           <div style={{

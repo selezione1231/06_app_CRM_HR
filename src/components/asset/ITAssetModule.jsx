@@ -168,7 +168,13 @@ export default function ITAssetModule({ view = 'devices' }) {
       {tab === 'devices' && (
         <div>
           <StatGrid stats={deviceStats} />
-          <TableWrap>
+          <TableWrap
+            exportName="dispositivi_it"
+            exportRows={devices.map(d => ({
+              'Tipo': d.type, 'Modello': d.model, 'Matricola': d.serial,
+              'Assegnatario': d.assignee ?? 'Non assegnato', 'Garanzia': d.warranty ?? '', 'Stato': d.status
+            }))}
+          >
             <table>
               <THead cols={['Tipo', 'Modello', 'Matricola', 'Assegnatario', 'Garanzia', 'Stato']} />
               <tbody>
@@ -202,7 +208,13 @@ export default function ITAssetModule({ view = 'devices' }) {
 
       {/* ===== APPARATI DI RETE ===== */}
       {tab === 'network' && (
-        <TableWrap>
+        <TableWrap
+          exportName="apparati_rete"
+          exportRows={network.map(n => ({
+            'Apparato': n.name, 'Ruolo': n.role, 'Sede': n.site, 'IP': n.ip,
+            'Stato': n.status, 'End of support': n.eos
+          }))}
+        >
           <table>
             <THead cols={['Apparato', 'Ruolo', 'Sede', 'IP', 'Stato', 'End of support']} />
             <tbody>
@@ -230,7 +242,13 @@ export default function ITAssetModule({ view = 'devices' }) {
       {tab === 'licenses' && (
         <div>
           <StatGrid stats={licenseStats} />
-          <TableWrap>
+          <TableWrap
+            exportName="licenze_software"
+            exportRows={licenses.map(l => ({
+              'Software': l.name, 'Posti totali': l.seats, 'Posti usati': l.used,
+              'Rinnovo': l.renewal ?? 'Perpetua', 'Costo annuo (EUR)': l.yearly_cost
+            }))}
+          >
             <table>
               <THead cols={['Software', 'Posti', 'Utilizzo', 'Rinnovo', 'Costo annuo']} />
               <tbody>
@@ -258,7 +276,13 @@ export default function ITAssetModule({ view = 'devices' }) {
       {tab === 'accounts' && (
         <div>
           <StatGrid stats={accountStats} />
-          <TableWrap>
+          <TableWrap
+            exportName="account_aziendali"
+            exportRows={accounts.map(a => ({
+              'Persona': a.person, 'Servizi': a.services.join(', '),
+              'MFA': a.mfa ? 'Attiva' : 'Assente', 'Stato': a.status
+            }))}
+          >
             <table>
               <THead cols={['Persona', 'Servizi', 'MFA', 'Stato', '']} />
               <tbody>
@@ -301,7 +325,13 @@ export default function ITAssetModule({ view = 'devices' }) {
           {tickets.length === 0 ? (
             <Card><EmptyState icon={MessageSquare} title="Nessun ticket" text="Tutto tranquillo sul fronte IT." /></Card>
           ) : (
-            <TableWrap>
+            <TableWrap
+              exportName="ticket_helpdesk"
+              exportRows={tickets.map(t => ({
+                'Data': t.date, 'Richiedente': t.requester, 'Oggetto': t.subject,
+                'Priorità': t.priority, 'Assegnato a': t.assignee, 'Stato': t.status
+              }))}
+            >
               <table>
                 <THead cols={['Data', 'Richiedente', 'Oggetto', 'Priorità', 'Assegnato a', 'Stato']} />
                 <tbody>

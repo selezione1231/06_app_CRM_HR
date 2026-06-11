@@ -6,7 +6,7 @@ import {
 import {
   ModulePage, ModuleHeader, TabBar, StatGrid, Card, TableWrap, THead, tdStyle,
   Pill, ExpiryPill, ProgressBar, EmptyState, Modal, Field, inputStyle, selectStyle,
-  useLocalState, fmtEuro, fmtNum, fmtDate, expiryInfo
+  useLocalState, fmtEuro, fmtNum, fmtDate, expiryInfo, ExportButton
 } from '../shared/ui'
 
 // ============================================================================
@@ -188,7 +188,14 @@ export default function AssetSGModule({ view = 'fuel' }) {
             ))}
           </Card>
 
-          <TableWrap>
+          <TableWrap
+            exportName="consumi_carburante"
+            exportRows={fuel.map(f => ({
+              'Data': f.date, 'Mezzo': f.vehicle, 'Litri': f.liters,
+              'Importo (EUR)': f.amount, 'Km': f.km ?? '',
+              'EUR/litro': f.liters > 0 ? Number((f.amount / f.liters).toFixed(3)) : ''
+            }))}
+          >
             <table>
               <THead cols={['Data', 'Mezzo', 'Litri', 'Importo', 'Km', '€/litro']} />
               <tbody>
@@ -210,7 +217,17 @@ export default function AssetSGModule({ view = 'fuel' }) {
 
       {/* ===== SEDI & IMPIANTI ===== */}
       {tab === 'sites' && (
-        <div className="card-grid">
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+            <ExportButton
+              filename="sedi_impianti"
+              rows={sites.flatMap(s => s.plants.map(pl => ({
+                'Sede': s.name, 'Indirizzo': s.address, 'Tipo': s.type,
+                'Impianto': pl.name, 'Prossima manutenzione': pl.next_maintenance
+              })))}
+            />
+          </div>
+          <div className="card-grid">
           {sites.map(site => (
             <Card key={site.id} style={{ padding: '16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
@@ -231,6 +248,7 @@ export default function AssetSGModule({ view = 'fuel' }) {
               ))}
             </Card>
           ))}
+          </div>
         </div>
       )}
 
@@ -238,7 +256,13 @@ export default function AssetSGModule({ view = 'fuel' }) {
       {tab === 'equipment' && (
         <div>
           <StatGrid stats={equipStats} />
-          <TableWrap>
+          <TableWrap
+            exportName="beni_attrezzature"
+            exportRows={equipment.map(e => ({
+              'Attrezzatura': e.name, 'Categoria': e.category, 'Matricola': e.serial,
+              'Assegnatario': e.assignee, 'Stato': e.status, 'Prossima verifica': e.next_check ?? ''
+            }))}
+          >
             <table>
               <THead cols={['Attrezzatura', 'Categoria', 'Matricola', 'Assegnatario', 'Stato', 'Prossima verifica']} />
               <tbody>
@@ -270,7 +294,14 @@ export default function AssetSGModule({ view = 'fuel' }) {
       {tab === 'warehouse' && (
         <div>
           <StatGrid stats={invStats} />
-          <TableWrap>
+          <TableWrap
+            exportName="inventario_magazzino"
+            exportRows={inventory.map(i => ({
+              'Codice': i.code, 'Articolo': i.name, 'Ubicazione': i.location,
+              'Giacenza': i.qty, 'Scorta minima': i.min_qty, 'UM': i.unit,
+              'Stato': i.qty < i.min_qty ? 'Sotto scorta' : 'OK'
+            }))}
+          >
             <table>
               <THead cols={['Codice', 'Articolo', 'Ubicazione', 'Giacenza', 'Scorta min.', 'Stato', 'Movimenti']} />
               <tbody>

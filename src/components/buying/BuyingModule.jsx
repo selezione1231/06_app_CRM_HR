@@ -6,7 +6,7 @@ import {
 import {
   ModulePage, ModuleHeader, TabBar, StatGrid, Card, TableWrap, THead, tdStyle,
   Pill, ExpiryPill, ProgressBar, EmptyState, Modal, Field, inputStyle, selectStyle,
-  useLocalState, fmtEuro, fmtDate, expiryInfo
+  useLocalState, fmtEuro, fmtDate, expiryInfo, ExportButton
 } from '../shared/ui'
 
 // ============================================================================
@@ -152,7 +152,13 @@ export default function BuyingModule({ view = 'suppliers' }) {
 
       {/* ===== FORNITORI ===== */}
       {tab === 'suppliers' && (
-        <TableWrap>
+        <TableWrap
+          exportName="anagrafica_fornitori"
+          exportRows={suppliers.map(s => ({
+            'Ragione sociale': s.name, 'Categoria': s.category, 'P.IVA': s.vat,
+            'Rating (1-5)': s.rating, 'Scadenza DURC': s.durc_expiry, 'Contatto': s.contact
+          }))}
+        >
           <table>
             <THead cols={['Ragione sociale', 'Categoria', 'P.IVA', 'Rating', 'DURC', 'Contatto']} />
             <tbody>
@@ -179,7 +185,13 @@ export default function BuyingModule({ view = 'suppliers' }) {
 
       {/* ===== LISTINI ===== */}
       {tab === 'listini' && (
-        <TableWrap>
+        <TableWrap
+          exportName="listini_fornitori"
+          exportRows={listini.map(l => ({
+            'Fornitore': l.supplier, 'Articolo': l.item,
+            'Prezzo (EUR)': l.price, 'Valido fino al': l.valid_until
+          }))}
+        >
           <table>
             <THead cols={['Fornitore', 'Articolo', 'Prezzo concordato', 'Validità']} />
             <tbody>
@@ -198,7 +210,19 @@ export default function BuyingModule({ view = 'suppliers' }) {
 
       {/* ===== ACCORDI QUADRO ===== */}
       {tab === 'accordi' && (
-        <div className="card-grid">
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+            <ExportButton
+              filename="accordi_quadro"
+              rows={accordi.map(a => ({
+                'Oggetto': a.subject, 'Fornitore': a.supplier,
+                'Massimale (EUR)': a.ceiling, 'Utilizzato (EUR)': a.used,
+                'Utilizzo %': a.ceiling > 0 ? Number(((a.used / a.ceiling) * 100).toFixed(1)) : '',
+                'Scadenza': a.expiry
+              }))}
+            />
+          </div>
+          <div className="card-grid">
           {accordi.map(a => {
             const pct = a.ceiling > 0 ? (a.used / a.ceiling) * 100 : 0
             return (
@@ -219,6 +243,7 @@ export default function BuyingModule({ view = 'suppliers' }) {
               </Card>
             )
           })}
+          </div>
         </div>
       )}
 
@@ -227,7 +252,14 @@ export default function BuyingModule({ view = 'suppliers' }) {
         rda.length === 0 ? (
           <Card><EmptyState icon={ClipboardList} title="Nessuna richiesta" text="Crea la prima RDA con il pulsante in alto." /></Card>
         ) : (
-          <TableWrap>
+          <TableWrap
+            exportName="richieste_acquisto_rda"
+            exportRows={rda.map(r => ({
+              'Data': r.date, 'Richiedente': r.requester, 'Funzione': r.dept,
+              'Oggetto': r.item, 'Importo (EUR)': r.amount,
+              'Centro di costo': r.cost_center, 'Stato': r.status
+            }))}
+          >
             <table>
               <THead cols={['Data', 'Richiedente', 'Oggetto', 'Importo', 'Centro di costo', 'Stato', 'Azioni']} />
               <tbody>
@@ -279,7 +311,13 @@ export default function BuyingModule({ view = 'suppliers' }) {
 
       {/* ===== ORDINI ===== */}
       {tab === 'orders' && (
-        <TableWrap>
+        <TableWrap
+          exportName="ordini_fornitori"
+          exportRows={orders.map(o => ({
+            'Numero': o.number, 'Data': o.date, 'Fornitore': o.supplier,
+            'Importo (EUR)': o.amount, 'Consegna prevista': o.delivery, 'Stato': o.status
+          }))}
+        >
           <table>
             <THead cols={['Numero', 'Data', 'Fornitore', 'Importo', 'Consegna prevista', 'Stato']} />
             <tbody>
@@ -310,6 +348,14 @@ export default function BuyingModule({ view = 'suppliers' }) {
               L'AI confronta automaticamente ogni fattura con ordini e DDT collegati,
               segnalando differenze di importo, quantità o fatture senza ordine.
             </p>
+            <ExportButton
+              filename="controllo_fatture"
+              rows={invoices.map(inv => ({
+                'Numero fattura': inv.number, 'Fornitore': inv.supplier, 'Ordine': inv.order,
+                'Importo (EUR)': inv.amount, 'Esito AI': inv.ai_status,
+                'Nota AI': inv.ai_note, 'Confidenza %': inv.confidence
+              }))}
+            />
           </Card>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {invoices.map(inv => {

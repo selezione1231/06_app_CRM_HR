@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { Building, ChevronDown, ChevronRight, Users2, UserCircle2, Search } from 'lucide-react'
-import { ModulePage, ModuleHeader, StatGrid, Card, Pill, inputStyle } from '../shared/ui'
+import { ModulePage, ModuleHeader, StatGrid, Card, Pill, inputStyle, ExportButton } from '../shared/ui'
 
 // ============================================================================
 // OrgChartModule — Organigramma aziendale (People → HR)
@@ -167,6 +167,13 @@ export default function OrgChartModule() {
         subtitle="Struttura organizzativa aziendale: funzioni, riporti e team."
         actions={
           <>
+            <ExportButton
+              filename="organigramma"
+              rows={all.map(p => ({
+                'Nome': p.name, 'Ruolo': p.title, 'Funzione': p.dept,
+                'Riporti diretti': (p.children || []).length
+              }))}
+            />
             <button className="btn btn-secondary" onClick={() => setExpandedIds(new Set(allIds))}>Espandi tutto</button>
             <button className="btn btn-secondary" onClick={() => setExpandedIds(new Set([ORG_TREE.id]))}>Comprimi</button>
           </>
