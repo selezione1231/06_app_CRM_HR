@@ -52,7 +52,7 @@ export default function WP2Module() {
 
       <div style={{ marginBottom: '16px' }}>
         <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: WP_COLORS.primary, margin: 0 }}>
-          🛠️ Work-Pro Todos — Console P.M.
+          🛠️ Noi Todos.it — Console P.M.
         </h1>
         <p style={{ fontSize: '0.78rem', color: WP_COLORS.textMuted, margin: '2px 0 0 0' }}>
           Gestione cantieri · squadre · automezzi · reperibilità

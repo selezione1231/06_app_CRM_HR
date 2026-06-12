@@ -217,7 +217,7 @@ export default function PersonalApp({
           {/* FAB WhatsApp (solo su Inserisci Ore) */}
           {view === 'hours' && (
             <button
-              onClick={() => alert('🎙️ Registrazione vocale WhatsApp\n\nLa nota verrà inviata al bot Work-Pro che la trascriverà e precompilerà il form (Whisper + LLM).')}
+              onClick={() => alert('🎙️ Registrazione vocale WhatsApp\n\nLa nota verrà inviata al bot Noi Todos.it che la trascriverà e precompilerà il form (Whisper + LLM).')}
               title="Compila con messaggio vocale WhatsApp"
               style={{
                 position: 'fixed', bottom: '80px',

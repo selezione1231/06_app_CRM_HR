@@ -117,7 +117,7 @@ export default function TimbratureAdmin() {
         <div style={{ padding: '12px 16px', background: '#f8fafc', borderBottom: '1px solid var(--border-color, #e2e8f0)', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Users size={15} style={{ color: 'var(--text-muted, #64748b)' }} />
           <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-            Dipendenti Work-Pro ({WP_EMPLOYEES.length})
+            Dipendenti Noi Todos.it ({WP_EMPLOYEES.length})
           </span>
         </div>
 

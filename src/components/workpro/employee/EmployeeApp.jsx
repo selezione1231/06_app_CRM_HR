@@ -122,7 +122,7 @@ export default function EmployeeApp() {
             cursor: 'pointer', boxShadow: '0 6px 20px rgba(37,211,102,0.4)',
             display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50
           }}
-          onClick={() => alert('🎙️ Registrazione vocale WhatsApp\n\nLa nota verrà inviata al bot Work-Pro che la trascriverà e precompilerà il form ore (Whisper + LLM).')}
+          onClick={() => alert('🎙️ Registrazione vocale WhatsApp\n\nLa nota verrà inviata al bot Noi Todos.it che la trascriverà e precompilerà il form ore (Whisper + LLM).')}
           title="Compila con messaggio vocale WhatsApp">
             <Mic size={24} />
           </button>
