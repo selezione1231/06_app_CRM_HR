@@ -58,6 +58,8 @@ export default function Header({
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
+      width: '100%',
+      boxSizing: 'border-box',
       padding: '12px 24px',
       borderBottom: '1px solid var(--border-color)',
       position: 'sticky',
