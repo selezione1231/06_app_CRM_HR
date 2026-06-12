@@ -124,8 +124,10 @@ export default function ImportDatiModule({ userRoles = [], user }) {
     setStatus(s => ({ ...s, [cfg.file]: { state: 'parsing', done: 0, total: 0, errors: [] } }))
     try {
       const XLSX = await import('xlsx')
-      const wb = XLSX.read(await file.arrayBuffer())
-      const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' })
+      // raw: true → le date del CSV restano stringhe (niente seriali Excel),
+      // le conversioni le facciamo noi con D()/TS()
+      const wb = XLSX.read(await file.arrayBuffer(), { raw: true })
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '', raw: true })
       const mapped = rows.map(cfg.map).filter(r => r.legacy_id !== null && r.legacy_id !== undefined)
       if (mapped.length === 0) throw new Error('Nessuna riga valida: controlla che il file sia ' + cfg.file)
 
